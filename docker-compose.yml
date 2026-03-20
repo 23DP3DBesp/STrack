@@ -1,0 +1,32 @@
+﻿version: '3.9'
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: docbox-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: docbox
+      MYSQL_USER: docbox
+      MYSQL_PASSWORD: docbox
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: docbox-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: docbox
+      PMA_PASSWORD: docbox
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
