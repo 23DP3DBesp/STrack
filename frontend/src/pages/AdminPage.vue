@@ -80,9 +80,11 @@
 import { onMounted, ref } from 'vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import { useAdminStore } from '../stores/admin'
+import { useConfirmStore } from '../stores/confirm'
 import { useI18n } from '../i18n'
 
 const admin = useAdminStore()
+const confirm = useConfirmStore()
 const { t } = useI18n()
 const roles = ['user', 'manager', 'developer', 'admin']
 const userQuery = ref('')
@@ -113,7 +115,12 @@ const restore = async (documentId) => {
 }
 
 const purge = async (documentId) => {
-  const confirmed = window.confirm('Purge document permanently?')
+  const confirmed = await confirm.ask({
+    title: t('admin.confirmPurgeTitle'),
+    message: t('admin.confirmPurgeMessage'),
+    confirmText: t('common.yes'),
+    cancelText: t('common.no')
+  })
   if (!confirmed) return
   await admin.purgeDocument(documentId)
 }

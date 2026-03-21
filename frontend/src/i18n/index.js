@@ -1,4 +1,4 @@
-const messages = {
+const en = {
   nav: {
     home: 'Home',
     dashboard: 'Dashboard',
@@ -110,7 +110,9 @@ const messages = {
     comments: 'Comments',
     addComment: 'Add comment',
     writeComment: 'Write a comment',
-    postComment: 'Post comment'
+    postComment: 'Post comment',
+    confirmMoveToTrashTitle: 'Move to trash?',
+    confirmMoveToTrashMessage: 'The document will be moved to trash and can be restored later.'
   },
   admin: {
     title: 'Admin panel',
@@ -125,7 +127,9 @@ const messages = {
     searchUsers: 'Search by name or email',
     searchTrash: 'Search deleted documents',
     restore: 'Restore',
-    purge: 'Purge'
+    purge: 'Purge',
+    confirmPurgeTitle: 'Delete permanently?',
+    confirmPurgeMessage: 'This action cannot be undone.'
   },
   trash: {
     title: 'Trash',
@@ -133,13 +137,33 @@ const messages = {
     deletedDocs: 'Deleted documents',
     refresh: 'Refresh',
     restore: 'Restore',
-    deleteForever: 'Delete forever'
+    deleteForever: 'Delete forever',
+    search: 'Search in trash',
+    apply: 'Apply',
+    reset: 'Reset',
+    selected: 'Selected',
+    unknownOwner: 'Unknown owner',
+    confirmPurgeTitle: 'Delete forever?',
+    confirmPurgeMessage: 'The document will be permanently deleted.',
+    confirmPurgeSelectedMessage: 'Selected documents will be permanently deleted.'
   },
   developer: {
     title: 'Developer panel',
     subtitle: 'Runtime, storage, and database diagnostics.',
     application: 'Application',
-    storageDb: 'Storage and DB'
+    storageDb: 'Storage and DB',
+    confirmImpersonateTitle: 'Start impersonation?',
+    confirmImpersonateMessage: 'You will sign in as {email}.',
+    confirmResetPasswordTitle: 'Generate temporary password?',
+    confirmResetPasswordMessage: 'Temporary password will be generated for {email}.',
+    confirmBroadcastTitle: 'Broadcast to all users?',
+    confirmBroadcastMessage: 'Notification will be sent to all users.',
+    confirmCleanupTitle: 'Run trash cleanup?',
+    confirmCleanupMessage: 'All trashed files older than {days} days will be purged.',
+    confirmPurgeTitle: 'Delete permanently?',
+    confirmPurgeMessage: 'This document will be permanently deleted.',
+    confirmBulkPurgeTitle: 'Delete selected permanently?',
+    confirmBulkPurgeMessage: 'Selected documents will be permanently deleted.'
   },
   common: {
     general: 'General',
@@ -151,19 +175,147 @@ const messages = {
   }
 }
 
+const ru = {
+  ...en,
+  nav: {
+    ...en.nav,
+    home: 'Главная',
+    dashboard: 'Панель',
+    documents: 'Документы',
+    trash: 'Корзина',
+    admin: 'Админ',
+    developer: 'Разработчик',
+    notifications: 'Уведомления',
+    markAllRead: 'Прочитать все',
+    login: 'Вход',
+    register: 'Регистрация',
+    logout: 'Выход'
+  },
+  trash: {
+    ...en.trash,
+    title: 'Корзина',
+    subtitle: 'Восстановите документ или удалите навсегда.',
+    deletedDocs: 'Удаленные документы',
+    refresh: 'Обновить',
+    restore: 'Восстановить',
+    deleteForever: 'Удалить навсегда',
+    search: 'Поиск в корзине',
+    apply: 'Применить',
+    reset: 'Сбросить',
+    selected: 'Выбрано',
+    unknownOwner: 'Неизвестный владелец',
+    confirmPurgeTitle: 'Удалить навсегда?',
+    confirmPurgeMessage: 'Документ будет удален безвозвратно.',
+    confirmPurgeSelectedMessage: 'Выбранные документы будут удалены безвозвратно.'
+  },
+  admin: {
+    ...en.admin,
+    title: 'Панель администратора',
+    subtitle: 'Управляйте пользователями, ролями, хранилищем и корзиной.',
+    users: 'Пользователи',
+    admins: 'Администраторы',
+    developers: 'Разработчики',
+    docs: 'Документы',
+    usersRoles: 'Пользователи и роли',
+    globalTrash: 'Глобальная корзина',
+    searchUsers: 'Поиск по имени или email',
+    searchTrash: 'Поиск удаленных документов',
+    restore: 'Восстановить',
+    purge: 'Удалить',
+    confirmPurgeTitle: 'Удалить навсегда?',
+    confirmPurgeMessage: 'Это действие нельзя отменить.'
+  },
+  details: {
+    ...en.details,
+    download: 'Скачать',
+    share: 'Поделиться',
+    delete: 'Удалить',
+    preview: 'Предпросмотр',
+    saveMeta: 'Сохранить метаданные',
+    uploadVersion: 'Загрузить новую версию',
+    createVersion: 'Создать версию',
+    inlineEditor: 'Встроенный редактор',
+    saveAsVersion: 'Сохранить как новую версию',
+    reload: 'Перезагрузить',
+    owner: 'Владелец',
+    currentVersion: 'Текущая версия',
+    versionHistory: 'История версий',
+    activity: 'Активность',
+    restore: 'Восстановить',
+    comments: 'Комментарии',
+    addComment: 'Добавить комментарий',
+    writeComment: 'Напишите комментарий',
+    postComment: 'Отправить',
+    confirmMoveToTrashTitle: 'Переместить в корзину?',
+    confirmMoveToTrashMessage: 'Документ будет перемещен в корзину, где его можно восстановить.'
+  },
+  developer: {
+    ...en.developer,
+    title: 'Панель разработчика',
+    subtitle: 'Диагностика приложения, хранилища и базы данных.',
+    confirmImpersonateTitle: 'Начать impersonation?',
+    confirmImpersonateMessage: 'Вы войдете как {email}.',
+    confirmResetPasswordTitle: 'Сгенерировать временный пароль?',
+    confirmResetPasswordMessage: 'Для {email} будет сгенерирован временный пароль.',
+    confirmBroadcastTitle: 'Сделать рассылку всем?',
+    confirmBroadcastMessage: 'Уведомление будет отправлено всем пользователям.',
+    confirmCleanupTitle: 'Запустить очистку корзины?',
+    confirmCleanupMessage: 'Файлы в корзине старше {days} дней будут удалены.',
+    confirmPurgeTitle: 'Удалить навсегда?',
+    confirmPurgeMessage: 'Документ будет удален безвозвратно.',
+    confirmBulkPurgeTitle: 'Удалить выбранные навсегда?',
+    confirmBulkPurgeMessage: 'Выбранные документы будут удалены безвозвратно.'
+  },
+  common: {
+    ...en.common,
+    general: 'Общее',
+    noDescription: 'Нет описания',
+    yes: 'Да',
+    no: 'Нет',
+    confirmDelete: 'Удалить навсегда?',
+    movedToTrash: 'Документ перемещен в корзину'
+  }
+}
+
+const messages = {
+  en,
+  ru
+}
+
 const resolveKey = (dictionary, key) =>
   key.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : null), dictionary)
 
-export const t = (key) => {
-  const value = resolveKey(messages, key)
-  return value !== null && value !== undefined ? value : key
+const LOCALE_KEY = 'docbox_locale'
+const getInitialLocale = () => {
+  const saved = localStorage.getItem(LOCALE_KEY)
+  if (saved && messages[saved]) return saved
+  const browser = (navigator.language || 'en').toLowerCase()
+  if (browser.startsWith('ru')) return 'ru'
+  return 'en'
 }
 
-export const useI18n = () => ({ t })
+let currentLocale = getInitialLocale()
+
+export const t = (key) => {
+  const value = resolveKey(messages[currentLocale], key)
+  if (value !== null && value !== undefined) return value
+  const fallback = resolveKey(messages.en, key)
+  return fallback !== null && fallback !== undefined ? fallback : key
+}
+
+export const setLocale = (locale) => {
+  if (!messages[locale]) return
+  currentLocale = locale
+  localStorage.setItem(LOCALE_KEY, locale)
+}
+
+export const getLocale = () => currentLocale
+
+export const useI18n = () => ({ t, setLocale, getLocale })
 
 export default {
   install(app) {
-    app.provide('docboxI18n', { t })
+    app.provide('docboxI18n', { t, setLocale, getLocale })
     app.config.globalProperties.$t = t
   }
 }

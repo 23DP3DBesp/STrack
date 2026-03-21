@@ -3,28 +3,38 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\PurgeDocumentJob;
 use App\Models\Document;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use App\Services\SecurityLogService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
+    public function __construct(private readonly SecurityLogService $securityLogService) {}
+
     public function summary(): JsonResponse
     {
-        return response()->json([
-            'users_total' => User::query()->count(),
-            'admins_total' => User::query()->where('role', 'admin')->count(),
-            'developers_total' => User::query()->where('role', 'developer')->count(),
-            'documents_total' => Document::query()->count(),
-            'documents_in_trash' => Document::query()->onlyTrashed()->count(),
-            'storage_total_bytes' => (int) Document::query()->sum('size'),
-        ]);
+        $ttl = max(1, (int) config('docbox.cache_ttl_seconds', 60));
+        $payload = Cache::remember('admin.summary', $ttl, static function (): array {
+            return [
+                'users_total' => User::query()->count(),
+                'admins_total' => User::query()->where('role', 'admin')->count(),
+                'developers_total' => User::query()->where('role', 'developer')->count(),
+                'documents_total' => Document::query()->count(),
+                'documents_in_trash' => Document::query()->onlyTrashed()->count(),
+                'storage_total_bytes' => (int) Document::query()->sum('size'),
+            ];
+        });
+
+        return response()->json($payload);
     }
 
     public function users(Request $request): JsonResponse
@@ -83,7 +93,7 @@ class AdminController extends Controller
     public function restoreDocument(int $documentId): JsonResponse
     {
         $document = Document::query()->withTrashed()->findOrFail($documentId);
-        abort_if(!$document->trashed(), 422, 'Document is not in trash');
+        abort_if(! $document->trashed(), 422, 'Document is not in trash');
 
         $document->restore();
 
@@ -96,49 +106,54 @@ class AdminController extends Controller
     public function purgeDocument(int $documentId): JsonResponse
     {
         $document = Document::query()->withTrashed()->findOrFail($documentId);
-
-        $document->versions()->each(function ($version): void {
-            Storage::disk('private')->delete($version->path);
-        });
-
-        $document->forceDelete();
+        PurgeDocumentJob::dispatchSync($document->id);
+        $this->securityLogService->log('admin.document_purged', [
+            'actor_id' => (int) auth()->id(),
+            'document_id' => $documentId,
+            'ip' => (string) request()->ip(),
+        ]);
 
         return response()->json(['message' => 'Document permanently deleted']);
     }
 
     public function developerOverview(): JsonResponse
     {
-        $privateDisk = Storage::disk('private');
-        $allDocuments = Document::query()->withTrashed()->count();
-        $allVersions = DB::table('document_versions')->count();
-        $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
+        $ttl = max(1, (int) config('docbox.cache_ttl_seconds', 60));
+        $payload = Cache::remember('admin.developer_overview', $ttl, static function (): array {
+            $privateDisk = Storage::disk('private');
+            $allDocuments = Document::query()->withTrashed()->count();
+            $allVersions = DB::table('document_versions')->count();
+            $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
 
-        return response()->json([
-            'app' => [
-                'name' => config('app.name'),
-                'env' => config('app.env'),
-                'debug' => (bool) config('app.debug'),
-                'url' => config('app.url'),
-            ],
-            'runtime' => [
-                'php_version' => PHP_VERSION,
-                'laravel_version' => app()->version(),
-                'timezone' => config('app.timezone'),
-            ],
-            'storage' => [
-                'private_disk' => config('filesystems.default') === 'private' ? 'default' : 'private',
-                'documents_total' => $allDocuments,
-                'versions_total' => $allVersions,
-                'failed_jobs' => $failedJobs,
-                'free_plan_quota_mb' => (int) config('docbox.upload.free_plan_quota_mb', 512),
-                'max_file_kb' => (int) config('docbox.upload.max_file_kb', 102400),
-                'sample_file_exists' => $privateDisk->exists('documents'),
-            ],
-            'database' => [
-                'default' => config('database.default'),
-                'driver' => config('database.connections.'.config('database.default').'.driver'),
-                'database' => config('database.connections.'.config('database.default').'.database'),
-            ],
-        ]);
+            return [
+                'app' => [
+                    'name' => config('app.name'),
+                    'env' => config('app.env'),
+                    'debug' => (bool) config('app.debug'),
+                    'url' => config('app.url'),
+                ],
+                'runtime' => [
+                    'php_version' => PHP_VERSION,
+                    'laravel_version' => app()->version(),
+                    'timezone' => config('app.timezone'),
+                ],
+                'storage' => [
+                    'private_disk' => config('filesystems.default') === 'private' ? 'default' : 'private',
+                    'documents_total' => $allDocuments,
+                    'versions_total' => $allVersions,
+                    'failed_jobs' => $failedJobs,
+                    'free_plan_quota_mb' => (int) config('docbox.upload.free_plan_quota_mb', 512),
+                    'max_file_kb' => (int) config('docbox.upload.max_file_kb', 102400),
+                    'sample_file_exists' => $privateDisk->exists('documents'),
+                ],
+                'database' => [
+                    'default' => config('database.default'),
+                    'driver' => config('database.connections.'.config('database.default').'.driver'),
+                    'database' => config('database.connections.'.config('database.default').'.database'),
+                ],
+            ];
+        });
+
+        return response()->json($payload);
     }
 }

@@ -3,52 +3,60 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\PurgeDocumentJob;
 use App\Models\AuditLog;
 use App\Models\Document;
 use App\Models\DocumentComment;
 use App\Models\User;
 use App\Models\UserNotification;
 use App\Services\NotificationService;
+use App\Services\SecurityLogService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class DeveloperController extends Controller
 {
-    public function __construct(private readonly NotificationService $notificationService)
-    {
-    }
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly SecurityLogService $securityLogService
+    ) {}
 
     public function overview(): JsonResponse
     {
-        $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
-        $notifications = Schema::hasTable('user_notifications') ? DB::table('user_notifications')->count() : 0;
-        $comments = Schema::hasTable('document_comments') ? DB::table('document_comments')->count() : 0;
+        $ttl = max(1, (int) config('docbox.cache_ttl_seconds', 60));
+        $payload = Cache::remember('developer.overview', $ttl, static function (): array {
+            $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
+            $notifications = Schema::hasTable('user_notifications') ? DB::table('user_notifications')->count() : 0;
+            $comments = Schema::hasTable('document_comments') ? DB::table('document_comments')->count() : 0;
 
-        return response()->json([
-            'users' => [
-                'total' => User::query()->count(),
-                'admins' => User::query()->where('role', 'admin')->count(),
-                'developers' => User::query()->where('role', 'developer')->count(),
-            ],
-            'documents' => [
-                'total' => Document::query()->count(),
-                'in_trash' => Document::query()->onlyTrashed()->count(),
-            ],
-            'system' => [
-                'php_version' => PHP_VERSION,
-                'laravel_version' => app()->version(),
-                'failed_jobs' => $failedJobs,
-                'notifications_total' => $notifications,
-                'comments_total' => $comments,
-            ],
-        ]);
+            return [
+                'users' => [
+                    'total' => User::query()->count(),
+                    'admins' => User::query()->where('role', 'admin')->count(),
+                    'developers' => User::query()->where('role', 'developer')->count(),
+                ],
+                'documents' => [
+                    'total' => Document::query()->count(),
+                    'in_trash' => Document::query()->onlyTrashed()->count(),
+                ],
+                'system' => [
+                    'php_version' => PHP_VERSION,
+                    'laravel_version' => app()->version(),
+                    'failed_jobs' => $failedJobs,
+                    'notifications_total' => $notifications,
+                    'comments_total' => $comments,
+                ],
+            ];
+        });
+
+        return response()->json($payload);
     }
 
     public function users(Request $request): JsonResponse
@@ -183,7 +191,7 @@ class DeveloperController extends Controller
     public function documentRestore(int $documentId): JsonResponse
     {
         $document = Document::query()->withTrashed()->findOrFail($documentId);
-        abort_if(!$document->trashed(), 422, 'Document is not in trash');
+        abort_if(! $document->trashed(), 422, 'Document is not in trash');
 
         $document->restore();
 
@@ -192,11 +200,13 @@ class DeveloperController extends Controller
 
     public function documentPurge(int $documentId): JsonResponse
     {
-        $document = Document::query()->withTrashed()->findOrFail($documentId);
-        $document->versions()->each(function ($version): void {
-            Storage::disk('private')->delete($version->path);
-        });
-        $document->forceDelete();
+        Document::query()->withTrashed()->findOrFail($documentId);
+        PurgeDocumentJob::dispatchSync($documentId);
+        $this->securityLogService->log('developer.document_purged', [
+            'actor_id' => (int) auth()->id(),
+            'document_id' => $documentId,
+            'ip' => (string) request()->ip(),
+        ]);
 
         return response()->json(['message' => 'Document purged']);
     }
@@ -285,6 +295,11 @@ class DeveloperController extends Controller
         $actor = $request->user();
         abort_if((int) $actor->id === (int) $user->id, 422, 'Cannot impersonate yourself');
 
+        $this->securityLogService->log('developer.impersonation_started', [
+            'actor_id' => $actor->id,
+            'target_user_id' => $user->id,
+            'ip' => (string) $request->ip(),
+        ]);
         $token = $user->createToken('impersonated-by-'.$actor->id)->plainTextToken;
 
         return response()->json([
@@ -338,7 +353,7 @@ class DeveloperController extends Controller
         ]);
 
         $recipientIds = User::query()
-            ->when(!empty($validated['role']), fn (Builder $query) => $query->where('role', $validated['role']))
+            ->when(! empty($validated['role']), fn (Builder $query) => $query->where('role', $validated['role']))
             ->pluck('id')
             ->all();
 
@@ -370,25 +385,30 @@ class DeveloperController extends Controller
             ->get();
 
         $processed = 0;
+        $purged = 0;
         foreach ($documents as $document) {
             if ($validated['action'] === 'archive') {
                 $document->update(['is_archived' => true]);
                 $processed++;
+
                 continue;
             }
             if ($validated['action'] === 'unarchive') {
                 $document->update(['is_archived' => false]);
                 $processed++;
+
                 continue;
             }
             if ($validated['action'] === 'star') {
                 $document->update(['is_starred' => true]);
                 $processed++;
+
                 continue;
             }
             if ($validated['action'] === 'unstar') {
                 $document->update(['is_starred' => false]);
                 $processed++;
+
                 continue;
             }
             if ($validated['action'] === 'restore') {
@@ -396,15 +416,23 @@ class DeveloperController extends Controller
                     $document->restore();
                 }
                 $processed++;
+
                 continue;
             }
             if ($validated['action'] === 'purge') {
-                $document->versions()->each(function ($version): void {
-                    Storage::disk('private')->delete($version->path);
-                });
-                $document->forceDelete();
+                PurgeDocumentJob::dispatch($document->id);
+                $purged++;
                 $processed++;
             }
+        }
+
+        if ($validated['action'] === 'purge' && $purged >= 10) {
+            $this->securityLogService->log('developer.bulk_purge', [
+                'actor_id' => (int) auth()->id(),
+                'requested_ids' => $validated['document_ids'],
+                'purged' => $purged,
+                'ip' => (string) $request->ip(),
+            ]);
         }
 
         return response()->json([
@@ -429,10 +457,7 @@ class DeveloperController extends Controller
 
         $purged = 0;
         foreach ($documents as $document) {
-            $document->versions()->each(function ($version): void {
-                Storage::disk('private')->delete($version->path);
-            });
-            $document->forceDelete();
+            PurgeDocumentJob::dispatch($document->id);
             $purged++;
         }
 

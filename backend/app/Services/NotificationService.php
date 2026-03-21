@@ -2,11 +2,17 @@
 
 namespace App\Services;
 
+use App\Jobs\SendUserNotificationJob;
 use App\Models\UserNotification;
 
 class NotificationService
 {
     public function notifyUser(int $userId, string $type, string $title, string $message, array $data = []): UserNotification
+    {
+        return $this->notifyUserNow($userId, $type, $title, $message, $data);
+    }
+
+    public function notifyUserNow(int $userId, string $type, string $title, string $message, array $data = []): UserNotification
     {
         return UserNotification::query()->create([
             'user_id' => $userId,
@@ -27,7 +33,13 @@ class NotificationService
             ->values();
 
         foreach ($unique as $userId) {
-            $this->notifyUser($userId, $type, $title, $message, $data);
+            SendUserNotificationJob::dispatch(
+                (int) $userId,
+                $type,
+                $title,
+                $message,
+                $data
+            );
         }
     }
 }

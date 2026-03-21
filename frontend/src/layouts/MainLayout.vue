@@ -53,12 +53,14 @@
         </div>
       </div>
     </v-main>
+    <ConfirmDialog />
   </v-app>
 </template>
 
 <script setup>
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 import { useAuthStore } from '../stores/auth'
 import { useI18n } from '../i18n'
 import { useNotificationsStore } from '../stores/notifications'

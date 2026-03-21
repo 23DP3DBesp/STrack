@@ -284,11 +284,13 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
 import { useAdminStore } from '../stores/admin'
+import { useConfirmStore } from '../stores/confirm'
 import { useAuthStore } from '../stores/auth'
 import { useI18n } from '../i18n'
 
 const router = useRouter()
 const admin = useAdminStore()
+const confirm = useConfirmStore()
 const auth = useAuthStore()
 const { t } = useI18n()
 
@@ -384,7 +386,12 @@ const prefillNotify = (user) => {
 }
 
 const impersonate = async (user) => {
-  const ok = window.confirm(`Impersonate ${user.email}?`)
+  const ok = await confirm.ask({
+    title: t('developer.confirmImpersonateTitle'),
+    message: t('developer.confirmImpersonateMessage').replace('{email}', user.email),
+    confirmText: t('common.yes'),
+    cancelText: t('common.no')
+  })
   if (!ok) return
   const data = await admin.impersonateUser(user.id)
   auth.startImpersonation(data.user, data.token, data.impersonator || null)
@@ -392,7 +399,12 @@ const impersonate = async (user) => {
 }
 
 const resetPassword = async (user) => {
-  const ok = window.confirm(`Generate temporary password for ${user.email}?`)
+  const ok = await confirm.ask({
+    title: t('developer.confirmResetPasswordTitle'),
+    message: t('developer.confirmResetPasswordMessage').replace('{email}', user.email),
+    confirmText: t('common.yes'),
+    cancelText: t('common.no')
+  })
   if (!ok) return
   const data = await admin.resetUserPassword(user.id)
   tempPasswordMessage.value = `Temporary password for ${user.email}: ${data.temporary_password}`
@@ -418,7 +430,12 @@ const sendNotification = async () => {
 
 const broadcastToAll = async () => {
   if (!notify.value.title.trim() || !notify.value.message.trim()) return
-  const ok = window.confirm('Broadcast notification to all users?')
+  const ok = await confirm.ask({
+    title: t('developer.confirmBroadcastTitle'),
+    message: t('developer.confirmBroadcastMessage'),
+    confirmText: t('common.yes'),
+    cancelText: t('common.no')
+  })
   if (!ok) return
   broadcastLoading.value = true
   try {
@@ -436,7 +453,12 @@ const broadcastToAll = async () => {
 const cleanupTrash = async () => {
   const days = Number(cleanupDays.value || 30)
   if (!Number.isFinite(days) || days < 1) return
-  const ok = window.confirm(`Purge trashed files older than ${days} days?`)
+  const ok = await confirm.ask({
+    title: t('developer.confirmCleanupTitle'),
+    message: t('developer.confirmCleanupMessage').replace('{days}', String(days)),
+    confirmText: t('common.yes'),
+    cancelText: t('common.no')
+  })
   if (!ok) return
   cleanupLoading.value = true
   try {
@@ -481,7 +503,12 @@ const restoreDoc = async (id) => {
 }
 
 const purgeDoc = async (id) => {
-  const ok = window.confirm('Purge document permanently?')
+  const ok = await confirm.ask({
+    title: t('developer.confirmPurgeTitle'),
+    message: t('developer.confirmPurgeMessage'),
+    confirmText: t('common.yes'),
+    cancelText: t('common.no')
+  })
   if (!ok) return
   await admin.purgeDeveloperDocument(id)
   await reloadDocuments()
@@ -520,7 +547,12 @@ const toggleSelectedDoc = (id) => {
 const runBulkDocs = async (action) => {
   if (!selectedDocIds.value.length) return
   if (action === 'purge') {
-    const ok = window.confirm('Purge selected documents permanently?')
+    const ok = await confirm.ask({
+      title: t('developer.confirmBulkPurgeTitle'),
+      message: t('developer.confirmBulkPurgeMessage'),
+      confirmText: t('common.yes'),
+      cancelText: t('common.no')
+    })
     if (!ok) return
   }
   await admin.bulkDeveloperDocumentsAction(action, selectedDocIds.value)

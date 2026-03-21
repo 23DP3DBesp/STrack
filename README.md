@@ -120,6 +120,7 @@ cp .env.example .env
 composer install
 php artisan key:generate
 php artisan migrate
+php artisan db:seed
 ```
 
 ### 3. Create first admin user
@@ -176,6 +177,46 @@ php artisan schedule:work
 ```
 
 Backups are stored in `backend/storage/app/backup` and old backups are auto-removed by retention policy.
+
+Restore check (dry-run, latest backup):
+
+```bash
+cd backend
+php artisan docbox:backup:restore --latest --dry-run
+```
+
+Restore from a specific SQL dump:
+
+```bash
+cd backend
+php artisan docbox:backup:restore --file=/absolute/path/to/docbox_YYYYmmdd_HHMMSS.sql
+```
+
+## Quality Gates
+
+Backend:
+
+```bash
+cd backend
+vendor/bin/pint --test
+php artisan test
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm install
+npm run lint
+npm run test
+npm run build
+```
+
+CI (`.github/workflows/ci.yml`) runs lint + test + build on pull requests.
+
+## API Docs
+
+OpenAPI specification: `backend/openapi.yaml`
 
 ## API Endpoints
 

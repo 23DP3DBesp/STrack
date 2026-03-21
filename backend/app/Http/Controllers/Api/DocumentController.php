@@ -7,14 +7,16 @@ use App\Http\Requests\BulkDocumentActionRequest;
 use App\Http\Requests\StoreDocumentRequest;
 use App\Http\Requests\UpdateDocumentContentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
+use App\Jobs\PurgeDocumentJob;
 use App\Models\Document;
 use App\Models\Folder;
 use App\Services\AuditLogService;
 use App\Services\DocumentService;
 use App\Services\NotificationService;
+use App\Services\SecurityLogService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
@@ -22,10 +24,9 @@ class DocumentController extends Controller
     public function __construct(
         private readonly DocumentService $documentService,
         private readonly AuditLogService $auditLogService,
-        private readonly NotificationService $notificationService
-    )
-    {
-    }
+        private readonly NotificationService $notificationService,
+        private readonly SecurityLogService $securityLogService
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -80,6 +81,7 @@ class DocumentController extends Controller
     public function trash(Request $request): JsonResponse
     {
         $user = $request->user();
+        $search = trim((string) $request->query('q', ''));
 
         $documents = Document::query()
             ->onlyTrashed()
@@ -87,6 +89,12 @@ class DocumentController extends Controller
             ->where(function (Builder $query) use ($user): void {
                 $query->where('owner_id', $user->id)
                     ->orWhereHas('collaborators', fn ($q) => $q->where('users.id', $user->id));
+            })
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $query->where(function (Builder $q) use ($search): void {
+                    $q->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
             })
             ->latest('deleted_at')
             ->paginate(20);
@@ -212,7 +220,7 @@ class DocumentController extends Controller
     public function restore(Request $request, int $documentId): JsonResponse
     {
         $document = $this->resolveDocumentWithTrash($request, $documentId);
-        abort_if(!$document->trashed(), 422, 'Document is not in trash');
+        abort_if(! $document->trashed(), 422, 'Document is not in trash');
         $this->authorize('delete', $document);
 
         $document->restore();
@@ -236,10 +244,7 @@ class DocumentController extends Controller
             ->values()
             ->all();
         $this->auditLogService->log($document, $request->user(), 'document.deleted_permanently');
-        $document->versions()->each(function ($version): void {
-            Storage::disk('private')->delete($version->path);
-        });
-        $document->forceDelete();
+        PurgeDocumentJob::dispatchSync($document->id);
         $this->notificationService->notifyUsers(
             $recipientIds,
             'document.deleted',
@@ -331,12 +336,14 @@ class DocumentController extends Controller
 
         $processed = 0;
         $skipped = [];
+        $purgeCount = 0;
 
         foreach ($ids as $id) {
             /** @var Document|null $document */
             $document = $documents->get($id);
-            if (!$document) {
+            if (! $document) {
                 $skipped[] = $id;
+
                 continue;
             }
 
@@ -352,10 +359,23 @@ class DocumentController extends Controller
                     'move' => $this->bulkMove($user, $document, $targetFolderId),
                     default => null,
                 };
+                if ($action === 'purge') {
+                    $purgeCount++;
+                }
                 $processed++;
             } catch (\Throwable) {
                 $skipped[] = $id;
             }
+        }
+
+        if ($action === 'purge' && $purgeCount >= 10) {
+            $this->securityLogService->log('documents.bulk_purge', [
+                'actor_id' => $user->id,
+                'requested_ids' => $ids->all(),
+                'processed' => $processed,
+                'skipped' => $skipped,
+                'ip' => (string) request()->ip(),
+            ]);
         }
 
         return response()->json([
@@ -394,7 +414,7 @@ class DocumentController extends Controller
 
     private function isEditableMime(?string $mimeType): bool
     {
-        if (!$mimeType) {
+        if (! $mimeType) {
             return false;
         }
 
@@ -434,7 +454,7 @@ class DocumentController extends Controller
     private function bulkRestore($user, Document $document): void
     {
         $this->authorize('delete', $document);
-        if (!$document->trashed()) {
+        if (! $document->trashed()) {
             return;
         }
         $document->restore();
@@ -445,10 +465,7 @@ class DocumentController extends Controller
     {
         $this->authorize('delete', $document);
         $this->auditLogService->log($document, $user, 'document.deleted_permanently');
-        $document->versions()->each(function ($version): void {
-            Storage::disk('private')->delete($version->path);
-        });
-        $document->forceDelete();
+        PurgeDocumentJob::dispatch($document->id);
     }
 
     private function bulkStar($user, Document $document, bool $starred): void

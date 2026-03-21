@@ -160,6 +160,7 @@ import { useRoute, useRouter } from 'vue-router'
 import MainLayout from '../../layouts/MainLayout.vue'
 import DocumentShareDialog from '../../components/DocumentShareDialog.vue'
 import { useDocumentsStore } from '../../stores/documents'
+import { useConfirmStore } from '../../stores/confirm'
 import { useAuthStore } from '../../stores/auth'
 import api from '../../api/client'
 import { useI18n } from '../../i18n'
@@ -167,6 +168,7 @@ import { useI18n } from '../../i18n'
 const route = useRoute()
 const router = useRouter()
 const documents = useDocumentsStore()
+const confirm = useConfirmStore()
 const auth = useAuthStore()
 const { t } = useI18n()
 
@@ -334,7 +336,12 @@ const deleteComment = async (commentId) => {
 }
 
 const moveToTrash = async () => {
-  const confirmed = window.confirm('Move document to trash?')
+  const confirmed = await confirm.ask({
+    title: t('details.confirmMoveToTrashTitle'),
+    message: t('details.confirmMoveToTrashMessage'),
+    confirmText: t('common.yes'),
+    cancelText: t('common.no')
+  })
   if (!confirmed) return
   await documents.deleteDocument(Number(route.params.id))
   router.push({ name: 'documents' })

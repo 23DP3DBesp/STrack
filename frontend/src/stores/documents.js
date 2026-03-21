@@ -25,6 +25,7 @@ export const useDocumentsStore = defineStore('documents', {
     comments: [],
     trashItems: [],
     trashPagination: null,
+    trashQuery: '',
     loading: false
   }),
   actions: {
@@ -99,10 +100,18 @@ export const useDocumentsStore = defineStore('documents', {
       await api.delete(`/documents/${id}`)
       await this.fetchDocuments(this.pagination?.current_page || 1)
     },
-    async fetchTrash(page = 1) {
+    async fetchTrash(page = 1, q = null) {
       this.loading = true
       try {
-        const { data } = await api.get('/documents/trash', { params: { page } })
+        if (q !== null) {
+          this.trashQuery = q
+        }
+        const { data } = await api.get('/documents/trash', {
+          params: {
+            page,
+            q: this.trashQuery || undefined
+          }
+        })
         this.trashItems = data.data
         this.trashPagination = data
       } finally {
@@ -112,14 +121,14 @@ export const useDocumentsStore = defineStore('documents', {
     async restoreDocument(id) {
       await api.post(`/documents/${id}/restore`)
       await Promise.all([
-        this.fetchTrash(this.trashPagination?.current_page || 1),
+        this.fetchTrash(this.trashPagination?.current_page || 1, this.trashQuery),
         this.fetchDocuments(this.pagination?.current_page || 1)
       ])
     },
     async purgeDocument(id) {
       await api.delete(`/documents/${id}/purge`)
       await Promise.all([
-        this.fetchTrash(this.trashPagination?.current_page || 1),
+        this.fetchTrash(this.trashPagination?.current_page || 1, this.trashQuery),
         this.fetchDocuments(this.pagination?.current_page || 1)
       ])
     },
