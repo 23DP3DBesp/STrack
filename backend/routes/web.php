@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return response()->json(['service' => 'DocBox API']);
+    return response()->json(['service' => 'Car Tracker & Tuning Journal API']);
 });

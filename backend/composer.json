@@ -1,7 +1,7 @@
 {
-  "name": "docbox/backend",
+  "name": "car-tracker/backend",
   "type": "project",
-  "description": "DocBox API",
+  "description": "Car Tracker & Tuning Journal API",
   "license": "MIT",
   "require": {
     "php": "^8.2",

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'default' => env('CACHE_STORE', 'database'),
+    'default' => env('CACHE_STORE', 'file'),
     'stores' => [
         'array' => [
             'driver' => 'array',
@@ -19,5 +19,5 @@ return [
             'lock_path' => storage_path('framework/cache/data'),
         ],
     ],
-    'prefix' => env('CACHE_PREFIX', 'docbox_cache_'),
+    'prefix' => env('CACHE_PREFIX', 'car_tracker_cache_'),
 ];

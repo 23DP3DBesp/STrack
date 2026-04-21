@@ -1,8 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsureDocumentPermission;
-use App\Http\Middleware\EnsureAdmin;
-use App\Http\Middleware\EnsureStaff;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,11 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up'
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'doc.permission' => EnsureDocumentPermission::class,
-            'admin' => EnsureAdmin::class,
-            'staff' => EnsureStaff::class,
-        ]);
+        $middleware->prepend([\App\Http\Middleware\SetSecurityHeaders::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
     })->create();

@@ -1,25 +1,21 @@
 ﻿import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+
 import HomePage from '../pages/HomePage.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import RegisterPage from '../pages/auth/RegisterPage.vue'
 import DashboardPage from '../pages/DashboardPage.vue'
-import DocumentsPage from '../pages/documents/DocumentsPage.vue'
-import DocumentDetailsPage from '../pages/documents/DocumentDetailsPage.vue'
-import TrashPage from '../pages/TrashPage.vue'
-import AdminPage from '../pages/AdminPage.vue'
-import DeveloperPage from '../pages/DeveloperPage.vue'
+import ProfilePage from '../pages/ProfilePage.vue'
+
 
 const routes = [
   { path: '/', name: 'home', component: HomePage },
   { path: '/login', name: 'login', component: LoginPage, meta: { guest: true } },
   { path: '/register', name: 'register', component: RegisterPage, meta: { guest: true } },
+
   { path: '/app', name: 'dashboard', component: DashboardPage, meta: { auth: true } },
-  { path: '/documents', name: 'documents', component: DocumentsPage, meta: { auth: true } },
-  { path: '/documents/:id', name: 'document-details', component: DocumentDetailsPage, meta: { auth: true } },
-  { path: '/trash', name: 'trash', component: TrashPage, meta: { auth: true } },
-  { path: '/admin', name: 'admin', component: AdminPage, meta: { auth: true, admin: true } },
-  { path: '/developer', name: 'developer', component: DeveloperPage, meta: { auth: true, staff: true } }
+  { path: '/profile', name: 'profile', component: ProfilePage, meta: { auth: true } }
+
 ]
 
 const router = createRouter({
@@ -42,15 +38,11 @@ router.beforeEach(async (to) => {
     return { name: 'login' }
   }
 
+  if (to.name === 'home' && auth.isAuthenticated) {
+    return { name: 'dashboard' }
+  }
+
   if (to.meta.guest && auth.isAuthenticated) {
-    return { name: 'dashboard' }
-  }
-
-  if (to.meta.admin && !auth.isAdmin) {
-    return { name: 'dashboard' }
-  }
-
-  if (to.meta.staff && !auth.isStaff) {
     return { name: 'dashboard' }
   }
 

@@ -8,7 +8,7 @@ const client = axios.create({
 })
 
 client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('docbox_token')
+  const token = localStorage.getItem('car_tracker_token')
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`

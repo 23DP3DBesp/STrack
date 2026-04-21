@@ -4,18 +4,12 @@ import api from '../api/client'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    token: localStorage.getItem('docbox_token') || null,
-    impersonator: JSON.parse(localStorage.getItem('docbox_impersonator') || 'null'),
-    backupSession: JSON.parse(localStorage.getItem('docbox_backup_session') || 'null'),
+    token: localStorage.getItem('car_tracker_token') || null,
     loading: false,
     error: null
   }),
   getters: {
-    isAuthenticated: (state) => Boolean(state.token),
-    isAdmin: (state) => state.user?.role === 'admin',
-    isDeveloper: (state) => state.user?.role === 'developer',
-    isStaff: (state) => ['admin', 'developer'].includes(state.user?.role),
-    isImpersonating: (state) => Boolean(state.impersonator)
+    isAuthenticated: (state) => Boolean(state.token)
   },
   actions: {
     async login(payload) {
@@ -23,7 +17,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const { data } = await api.post('/auth/login', payload)
-        this.setSession(data.user, data.token, null)
+        this.setSession(data.user, data.token)
       } catch (error) {
         this.error = this.extractError(error)
         throw error
@@ -36,7 +30,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const { data } = await api.post('/auth/register', payload)
-        this.setSession(data.user, data.token, null)
+        this.setSession(data.user, data.token)
       } catch (error) {
         this.error = this.extractError(error)
         throw error
@@ -56,38 +50,35 @@ export const useAuthStore = defineStore('auth', {
       }
       this.user = null
       this.token = null
-      this.impersonator = null
-      this.backupSession = null
       this.error = null
-      localStorage.removeItem('docbox_token')
-      localStorage.removeItem('docbox_impersonator')
-      localStorage.removeItem('docbox_backup_session')
+      localStorage.removeItem('car_tracker_token')
     },
-    setSession(user, token, impersonator = null) {
+    async updateProfile(data) {
+      const { data: updated } = await api.put('/profile', data)
+      this.user = updated
+      localStorage.setItem('user', JSON.stringify(updated))
+      // Apply theme immediately
+      document.documentElement.setAttribute('data-theme', updated.theme)
+      return updated
+    },
+
+    setUserLocale(locale) {
+      // Sync with i18n
+      if (window.i18n) {
+        window.i18n.global.locale.value = locale
+      }
+    },
+    async updatePassword(data) {
+      await api.put('/profile/password', data)
+    },
+    async deleteAccount(data) {
+      await api.delete('/profile', { data })
+      this.logout()
+    },
+    setSession(user, token) {
       this.user = user
       this.token = token
-      this.impersonator = impersonator
-      localStorage.setItem('docbox_token', token)
-      if (impersonator) {
-        localStorage.setItem('docbox_impersonator', JSON.stringify(impersonator))
-      } else {
-        localStorage.removeItem('docbox_impersonator')
-      }
-    },
-    startImpersonation(user, token, impersonator) {
-      this.backupSession = {
-        token: this.token,
-        user: this.user
-      }
-      localStorage.setItem('docbox_backup_session', JSON.stringify(this.backupSession))
-      this.setSession(user, token, impersonator)
-    },
-    stopImpersonation() {
-      if (!this.backupSession?.token || !this.backupSession?.user) return false
-      this.setSession(this.backupSession.user, this.backupSession.token, null)
-      this.backupSession = null
-      localStorage.removeItem('docbox_backup_session')
-      return true
+      localStorage.setItem('car_tracker_token', token)
     },
     clearError() {
       this.error = null

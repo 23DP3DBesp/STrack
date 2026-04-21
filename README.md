@@ -1,6 +1,6 @@
-﻿# DocBox
+﻿# STRack
 
-DocBox is a secure document storage platform with role-based access, document sharing, version history, and backup automation.
+STRack is a secure document storage platform with role-based access, document sharing, version history, and backup automation.
 
 ## Stack
 
@@ -23,7 +23,7 @@ DocBox is a secure document storage platform with role-based access, document sh
 ## Project Layout
 
 ```text
-DocBox/
+STRack/
 ├─ backend/
 │  ├─ app/
 │  │  ├─ Console/
@@ -57,7 +57,7 @@ DocBox/
 │  │  ├─ cache.php
 │  │  ├─ cors.php
 │  │  ├─ database.php
-│  │  ├─ docbox.php
+│  │  ├─ STRack.php
 │  │  ├─ filesystems.php
 │  │  ├─ logging.php
 │  │  ├─ queue.php
@@ -136,7 +136,7 @@ Then:
 ```php
 App\Models\User::create([
   'name' => 'Admin',
-  'email' => 'admin@docbox.local',
+  'email' => 'admin@STRack.local',
   'password' => 'Admin12345',
   'role' => 'admin'
 ]);
@@ -167,7 +167,7 @@ Manual backup:
 
 ```bash
 cd backend
-php artisan docbox:backup
+php artisan STRack:backup
 ```
 
 Scheduled backup:
@@ -182,14 +182,14 @@ Restore check (dry-run, latest backup):
 
 ```bash
 cd backend
-php artisan docbox:backup:restore --latest --dry-run
+php artisan STRack:backup:restore --latest --dry-run
 ```
 
 Restore from a specific SQL dump:
 
 ```bash
 cd backend
-php artisan docbox:backup:restore --file=/absolute/path/to/docbox_YYYYmmdd_HHMMSS.sql
+php artisan STRack:backup:restore --file=/absolute/path/to/docbox_YYYYmmdd_HHMMSS.sql
 ```
 
 ## Quality Gates

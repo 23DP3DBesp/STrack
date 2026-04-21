@@ -3,65 +3,53 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
-use App\Models\Document;
-use App\Models\Folder;
+use App\Models\Car;
+use App\Models\FuelLog;
+use App\Models\Mod;
+use App\Models\Repair;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function summary(): JsonResponse
+    public function summary(Request $request): JsonResponse
     {
-        $user = request()->user();
-        $ttl = max(1, (int) config('docbox.cache_ttl_seconds', 60));
-        $cacheKey = 'dashboard.summary.user.'.$user->id;
+        $userId = (int) $request->user()->id;
 
-        $payload = Cache::remember($cacheKey, $ttl, function () use ($user): array {
-            $accessibleDocuments = Document::query()
-                ->where(function ($query) use ($user): void {
-                    $query->where('owner_id', $user->id)
-                        ->orWhereHas('collaborators', fn ($q) => $q->where('users.id', $user->id));
-                });
-
-            $stats = [
-                'documents_total' => (clone $accessibleDocuments)->count(),
-                'documents_owned' => Document::query()->where('owner_id', $user->id)->count(),
-                'documents_shared_with_me' => (clone $accessibleDocuments)->where('owner_id', '!=', $user->id)->count(),
-                'documents_archived' => (clone $accessibleDocuments)->where('is_archived', true)->count(),
-                'documents_in_trash' => Document::query()
-                    ->onlyTrashed()
-                    ->where(function ($query) use ($user): void {
-                        $query->where('owner_id', $user->id)
-                            ->orWhereHas('collaborators', fn ($q) => $q->where('users.id', $user->id));
-                    })
-                    ->count(),
-                'folders_total' => Folder::query()->where('owner_id', $user->id)->count(),
-            ];
-
-            $recentDocuments = (clone $accessibleDocuments)
-                ->with(['owner:id,name,email', 'folder:id,name'])
-                ->latest()
-                ->limit(6)
-                ->get(['id', 'owner_id', 'folder_id', 'title', 'updated_at', 'mime_type', 'size']);
-
-            $recentActivity = AuditLog::query()
-                ->whereHas('document', function ($query) use ($user): void {
-                    $query->where('owner_id', $user->id)
-                        ->orWhereHas('collaborators', fn ($q) => $q->where('users.id', $user->id));
-                })
-                ->with(['user:id,name,email', 'document:id,title'])
-                ->latest()
-                ->limit(8)
-                ->get(['id', 'document_id', 'user_id', 'action', 'created_at']);
-
-            return [
-                'stats' => $stats,
-                'recent_documents' => $recentDocuments,
-                'recent_activity' => $recentActivity,
-            ];
-        });
-
-        return response()->json($payload);
+        return response()->json([
+            'stats' => [
+                'cars_total' => Car::query()->where('user_id', $userId)->count(),
+                'fuel_logs_total' => FuelLog::query()->whereHas('car', fn ($query) => $query->where('user_id', $userId))->count(),
+                'repairs_total' => Repair::query()->whereHas('car', fn ($query) => $query->where('user_id', $userId))->count(),
+                'mods_total' => Mod::query()->whereHas('car', fn ($query) => $query->where('user_id', $userId))->count(),
+                'total_spent' => round(
+                    (float) Repair::query()->whereHas('car', fn ($query) => $query->where('user_id', $userId))->sum('cost')
+                    + (float) Mod::query()->whereHas('car', fn ($query) => $query->where('user_id', $userId))->sum('cost')
+                    + (float) FuelLog::query()->whereHas('car', fn ($query) => $query->where('user_id', $userId))->sum('total_price'),
+                    2
+                ),
+            ],
+            'recent_fuel_logs' => FuelLog::query()
+                ->with('car:id,brand,model')
+                ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
+                ->latest('date')
+                ->latest('id')
+                ->limit(5)
+                ->get(),
+            'recent_repairs' => Repair::query()
+                ->with('car:id,brand,model')
+                ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
+                ->latest('date')
+                ->latest('id')
+                ->limit(5)
+                ->get(),
+            'recent_mods' => Mod::query()
+                ->with('car:id,brand,model')
+                ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
+                ->latest('date_installed')
+                ->latest('id')
+                ->limit(5)
+                ->get(),
+        ]);
     }
 }

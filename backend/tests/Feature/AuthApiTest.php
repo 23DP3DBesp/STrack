@@ -14,51 +14,49 @@ class AuthApiTest extends TestCase
     public function test_register_returns_user_and_token(): void
     {
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'Test User',
-            'email' => 'tester@example.com',
+            'login' => 'tester',
             'password' => 'Password123!',
         ]);
 
         $response->assertCreated()
-            ->assertJsonStructure(['user' => ['id', 'email', 'role'], 'token']);
+            ->assertJsonStructure(['user' => ['id', 'login'], 'token']);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'tester@example.com',
-            'role' => 'user',
+            'login' => 'tester',
         ]);
     }
 
     public function test_login_requires_valid_credentials(): void
     {
         User::factory()->create([
-            'email' => 'valid@example.com',
+            'login' => 'valid-driver',
             'password' => 'Password123!',
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'valid@example.com',
+            'login' => 'valid-driver',
             'password' => 'WrongPassword',
         ]);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['login']);
     }
 
     public function test_login_returns_token_for_valid_credentials(): void
     {
         User::factory()->create([
-            'email' => 'valid@example.com',
+            'login' => 'valid-driver',
             'password' => 'Password123!',
         ]);
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'valid@example.com',
+            'login' => 'valid-driver',
             'password' => 'Password123!',
             'device_name' => 'phpunit',
         ]);
 
         $response->assertOk()
-            ->assertJsonStructure(['user' => ['id', 'email'], 'token']);
+            ->assertJsonStructure(['user' => ['id', 'login'], 'token']);
     }
 
     public function test_me_returns_authenticated_user(): void
@@ -74,24 +72,20 @@ class AuthApiTest extends TestCase
 
     public function test_login_is_rate_limited(): void
     {
-        config()->set('docbox.security.login_rate_per_minute', 2);
-
         User::factory()->create([
-            'email' => 'rate@example.com',
+            'login' => 'rate-driver',
             'password' => 'Password123!',
         ]);
 
-        $this->postJson('/api/auth/login', [
-            'email' => 'rate@example.com',
-            'password' => 'WrongPassword',
-        ]);
-        $this->postJson('/api/auth/login', [
-            'email' => 'rate@example.com',
-            'password' => 'WrongPassword',
-        ]);
+        for ($i = 0; $i < 10; $i++) {
+            $this->postJson('/api/auth/login', [
+                'login' => 'rate-driver',
+                'password' => 'WrongPassword',
+            ]);
+        }
 
         $response = $this->postJson('/api/auth/login', [
-            'email' => 'rate@example.com',
+            'login' => 'rate-driver',
             'password' => 'WrongPassword',
         ]);
 

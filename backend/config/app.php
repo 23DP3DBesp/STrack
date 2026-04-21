@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
-    'name' => env('APP_NAME', 'DocBox'),
+    'name' => env('APP_NAME', 'Car Tracker'),
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost'),
@@ -16,7 +16,7 @@ return [
     'cipher' => 'AES-256-CBC',
     'maintenance' => [
         'driver' => 'file',
-        'store' => 'database',
+        'store' => 'file',
     ],
     'providers' => ServiceProvider::defaultProviders()->merge([
     ])->toArray(),

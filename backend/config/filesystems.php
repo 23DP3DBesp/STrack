@@ -1,18 +1,12 @@
 <?php
 
 return [
-    'default' => env('FILESYSTEM_DISK', 'private'),
+    'default' => env('FILESYSTEM_DISK', 'local'),
 
     'disks' => [
-        'private' => [
+        'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
-            'throw' => false,
-        ],
-
-        'backup' => [
-            'driver' => 'local',
-            'root' => storage_path('app/backup'),
+            'root' => storage_path('app'),
             'throw' => false,
         ],
     ],

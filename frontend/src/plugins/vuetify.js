@@ -3,16 +3,16 @@ import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
 
-const palette = {
+const light = {
   dark: false,
   colors: {
-    background: '#f4f6f8',
+    background: '#f4f4f6',
     surface: '#ffffff',
     primary: '#111827',
-    secondary: '#4b5563',
-    accent: '#0f766e',
-    error: '#b91c1c',
-    info: '#0369a1',
+    secondary: '#6b7280',
+    accent: '#e30000',
+    error: '#c62828',
+    info: '#2563eb',
     success: '#15803d',
     warning: '#a16207'
   }
@@ -20,9 +20,9 @@ const palette = {
 
 export default createVuetify({
   theme: {
-    defaultTheme: 'docbox',
+    defaultTheme: 'light',
     themes: {
-      docbox: palette
+      light
     }
   },
   icons: {

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use App\Services\SecurityLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,15 +13,11 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function __construct(private readonly SecurityLogService $securityLogService) {}
-
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::query()->create([
-            'name' => (string) $request->input('name'),
-            'email' => (string) $request->input('email'),
+            'login' => (string) $request->input('login'),
             'password' => (string) $request->input('password'),
-            'role' => 'user',
         ]);
 
         $token = $user->createToken($request->userAgent() ?? 'web')->plainTextToken;
@@ -35,16 +30,11 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::query()->where('email', (string) $request->input('email'))->first();
+        $user = User::query()->where('login', (string) $request->input('login'))->first();
 
         if (! $user || ! Hash::check((string) $request->input('password'), $user->password)) {
-            $this->securityLogService->log('auth.login_failed', [
-                'email' => (string) $request->input('email'),
-                'ip' => (string) $request->ip(),
-                'user_agent' => (string) ($request->userAgent() ?? ''),
-            ]);
             throw ValidationException::withMessages([
-                'email' => ['Invalid credentials.'],
+                'login' => ['Invalid credentials.'],
             ]);
         }
 
