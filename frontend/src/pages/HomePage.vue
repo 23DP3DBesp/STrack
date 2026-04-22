@@ -2,44 +2,60 @@
   <div class="landing-page">
     <header class="work-topbar landing-topbar">
       <div class="work-topbar-in">
-        <div class="work-brand">Car Tracker</div>
+        <button class="work-brand" type="button" @click="goHome">
+          Car Tracker
+        </button>
+
         <nav class="work-links">
-          <button class="work-link" type="button" @click="goLogin">Login</button>
-          <button class="work-link" type="button" @click="goRegister">Register</button>
+          <button class="work-link" type="button" @click="goLogin">
+            {{ t('nav.login') }}
+          </button>
+          <button class="work-link" type="button" @click="goRegister">
+            {{ t('nav.register') }}
+          </button>
         </nav>
       </div>
     </header>
 
     <main class="landing-shell">
-      <section class="hero-panel">
+      <section class="hero-panel home-hero-panel">
         <div class="hero-copy">
-          <div class="work-kicker">Car Tracker & Tuning Journal</div>
-          <h1 class="hero-title">Track every refill, repair, and upgrade in one clean garage workspace.</h1>
+          <div class="work-kicker">{{ t('home.kicker') }}</div>
+          <h1 class="hero-title">{{ t('home.title') }}</h1>
           <p class="hero-subtitle">
-            Keep a searchable garage, monitor fuel costs, log maintenance, and build a full tuning history for each car.
+            {{ t('home.subtitle') }}
           </p>
+
           <div class="hero-actions">
-            <v-btn class="ui-btn-primary" size="large" @click="goRegister">Start Tracking</v-btn>
-            <v-btn class="ui-btn-secondary" variant="outlined" size="large" @click="goLogin">Sign In</v-btn>
+            <v-btn class="ui-btn-primary" size="large" @click="goRegister">
+              {{ t('home.start') }}
+            </v-btn>
+
+            <v-btn class="ui-btn-secondary" variant="outlined" size="large" @click="goLogin">
+              {{ t('home.signIn') }}
+            </v-btn>
           </div>
         </div>
 
         <div class="hero-stat-grid">
           <article class="hero-stat-card">
-            <span class="hero-stat-label">Cars</span>
-            <strong>Garage inventory with instant search</strong>
+            <span class="hero-stat-label">{{ t('home.cards.cars.label') }}</span>
+            <strong>{{ t('home.cards.cars.value') }}</strong>
           </article>
+
           <article class="hero-stat-card">
-            <span class="hero-stat-label">Fuel Logs</span>
-            <strong>Auto-calculated price per liter and consumption</strong>
+            <span class="hero-stat-label">{{ t('home.cards.fuel.label') }}</span>
+            <strong>{{ t('home.cards.fuel.value') }}</strong>
           </article>
+
           <article class="hero-stat-card">
-            <span class="hero-stat-label">Repairs</span>
-            <strong>Date filtering for service history</strong>
+            <span class="hero-stat-label">{{ t('home.cards.repairs.label') }}</span>
+            <strong>{{ t('home.cards.repairs.value') }}</strong>
           </article>
+
           <article class="hero-stat-card">
-            <span class="hero-stat-label">Mods</span>
-            <strong>Tuning journal with cost and impact notes</strong>
+            <span class="hero-stat-label">{{ t('home.cards.mods.label') }}</span>
+            <strong>{{ t('home.cards.mods.value') }}</strong>
           </article>
         </div>
       </section>
@@ -49,9 +65,12 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
+const goHome = () => router.push({ name: 'home' })
 const goLogin = () => router.push({ name: 'login' })
 const goRegister = () => router.push({ name: 'register' })
 </script>

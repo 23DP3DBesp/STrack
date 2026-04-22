@@ -2,33 +2,72 @@
   <div class="auth-page modern-auth">
     <header class="work-topbar">
       <div class="work-topbar-in">
-        <div class="work-brand" @click="goHome">Car Tracker</div>
+        <button class="work-brand" type="button" @click="goHome">
+          Car Tracker
+        </button>
+
         <nav class="work-links">
           <button class="work-link" type="button" @click="goHome">Home</button>
           <button class="work-link" type="button" @click="goRegister">Register</button>
         </nav>
-        <div class="work-auth"></div>
+
+        <div class="work-auth" />
       </div>
     </header>
 
-    <div class="auth-modern-shell">
-      <section class="work-panel auth-modern-panel">
-        <div class="work-kicker">Garage access</div>
-        <h1 class="work-title auth-modern-title">{{ t('auth.loginTitle') }}</h1>
-        <p class="work-subtitle auth-modern-subtitle">{{ t('auth.continue') }}</p>
+    <main class="auth-page-main">
+      <div class="auth-modern-shell">
+        <section class="work-panel auth-modern-panel">
+          <div class="work-kicker">Garage access</div>
+          <h1 class="work-title auth-modern-title">{{ t('auth.loginTitle') }}</h1>
+          <p class="work-subtitle auth-modern-subtitle">{{ t('auth.continue') }}</p>
 
-        <v-alert v-if="auth.error" type="error" variant="tonal" class="mt-4 mb-2">{{ auth.error }}</v-alert>
+          <v-alert
+            v-if="auth.error"
+            type="error"
+            variant="tonal"
+            class="mt-4 mb-3"
+          >
+            {{ auth.error }}
+          </v-alert>
 
-        <v-form class="mt-4" @submit.prevent="submit">
-          <v-text-field v-model="login" :label="t('auth.login')" required />
-          <v-text-field v-model="password" :label="t('auth.password')" type="password" required />
-          <div class="d-flex ga-2 mt-2">
-            <v-btn type="submit" class="ui-btn-primary flex-grow-1" :loading="auth.loading">{{ t('auth.signIn') }}</v-btn>
-            <v-btn class="ui-btn-secondary" variant="text" @click="goRegister">Register</v-btn>
-          </div>
-        </v-form>
-      </section>
-    </div>
+          <v-form class="mt-4" @submit.prevent="submit">
+            <v-text-field
+              v-model="login"
+              :label="t('auth.login')"
+              autocomplete="username"
+              required
+            />
+
+            <v-text-field
+              v-model="password"
+              :label="t('auth.password')"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+
+            <div class="auth-actions-row">
+              <v-btn
+                type="submit"
+                class="ui-btn-primary auth-submit-btn"
+                :loading="auth.loading"
+              >
+                {{ t('auth.signIn') }}
+              </v-btn>
+
+              <v-btn
+                class="ui-btn-secondary"
+                variant="text"
+                @click="goRegister"
+              >
+                Register
+              </v-btn>
+            </div>
+          </v-form>
+        </section>
+      </div>
+    </main>
   </div>
 </template>
 
@@ -59,6 +98,7 @@ const submit = async () => {
       password: password.value,
       device_name: 'web-client'
     })
+
     router.push({ name: 'dashboard' })
   } catch (_) {
   }

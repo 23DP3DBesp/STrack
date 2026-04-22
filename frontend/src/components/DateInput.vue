@@ -1,5 +1,9 @@
 ﻿<template>
-  <v-menu v-model="open" :close-on-content-click="false" location="bottom start">
+  <v-menu
+    v-model="open"
+    :close-on-content-click="false"
+    location="bottom start"
+  >
     <template #activator="{ props }">
       <v-text-field
         v-bind="props"
@@ -16,6 +20,7 @@
         <template #prepend-inner>
           <v-icon icon="mdi-calendar-month-outline" size="20" />
         </template>
+
         <template #append-inner>
           <button
             v-if="clearable && modelValue"
@@ -36,9 +41,22 @@
         hide-header
         @update:model-value="onPick"
       />
+
       <div class="date-menu-actions">
-        <v-btn class="ui-btn-secondary compact" variant="text" @click="clearValue">Clear</v-btn>
-        <v-btn class="ui-btn-primary compact" @click="open = false">Done</v-btn>
+        <v-btn
+          class="ui-btn-secondary compact"
+          variant="text"
+          @click="clearValue"
+        >
+          Clear
+        </v-btn>
+
+        <v-btn
+          class="ui-btn-primary compact"
+          @click="open = false"
+        >
+          Done
+        </v-btn>
       </div>
     </v-card>
   </v-menu>
@@ -95,17 +113,19 @@ const normalizeToIsoDate = (value) => {
 
   const str = String(value)
 
-  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(str)) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
     const [year, month, day] = str.split('-')
-    // Parse as local date midday to avoid timezone shift
     const localDate = new Date(Number(year), Number(month) - 1, Number(day), 12, 0, 0)
+
     const isoYear = localDate.getFullYear()
     const isoMonth = String(localDate.getMonth() + 1).padStart(2, '0')
     const isoDay = String(localDate.getDate()).padStart(2, '0')
+
     return `${isoYear}-${isoMonth}-${isoDay}`
   }
 
   const fromDate = new Date(str)
+
   if (!Number.isNaN(fromDate.getTime())) {
     const year = fromDate.getFullYear()
     const month = String(fromDate.getMonth() + 1).padStart(2, '0')
@@ -124,12 +144,14 @@ const displayValue = computed(() => {
 
   const [year, month, day] = iso.split('-')
   if (!year || !month || !day) return iso
+
   return `${day}.${month}.${year}`
 })
 
 const onPick = (value) => {
   const iso = normalizeToIsoDate(value)
   if (!iso) return
+
   emit('update:modelValue', iso)
   open.value = false
 }
@@ -139,35 +161,3 @@ const clearValue = () => {
   open.value = false
 }
 </script>
-
-<style scoped>
-.date-text-field {
-  width: 100%;
-}
-
-.date-clear-btn {
-  border: 0;
-  background: transparent;
-  color: #e30000;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
-}
-
-.date-menu-card {
-  border-radius: 14px !important;
-  overflow: hidden;
-  padding: 8px;
-  background: #ffffff !important;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
-}
-
-.date-menu-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 6px 8px 8px;
-}
-</style>

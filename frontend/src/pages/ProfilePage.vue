@@ -4,28 +4,54 @@
       <div class="work-kicker">Profile settings</div>
       <h1 class="work-title">Manage your account</h1>
       <p class="work-subtitle">
-        Update personal details, preferences, language, and theme.
+        Update personal details, preferences, and security settings.
       </p>
     </section>
 
-    <v-container>
-      <v-form ref="formRef" @submit.prevent="submitProfile" class="max-w-lg">
+    <section class="profile-shell">
+      <v-form ref="formRef" @submit.prevent="submitProfile" class="profile-form">
         <v-card class="profile-card">
           <v-card-title>Account details</v-card-title>
           <v-card-text>
-            <v-text-field v-model="form.login" label="Login" :rules="[rules.required]" />
-            <v-text-field v-model="form.display_name" label="Display name" />
+            <div v-if="profileError" class="form-error">{{ profileError }}</div>
+
+            <v-text-field
+              v-model="form.login"
+              label="Login"
+              :rules="[rules.required]"
+            />
+            <v-text-field
+              v-model="form.display_name"
+              label="Display name"
+            />
           </v-card-text>
         </v-card>
 
         <v-card class="profile-card mt-4">
           <v-card-title>Preferences</v-card-title>
           <v-card-text>
-            <v-select v-model="form.locale" label="Language" :items="languages" @update:model-value="handleLocaleChange" />
-            <v-select v-model="form.currency_unit" label="Currency" :items="currencies" />
-            <v-select v-model="form.distance_unit" label="Distance unit" :items="distances" />
-            <div class="mt-4 p-3 bg-blue-grey-lighten-5">
-              <strong>Preview:</strong> Language: {{ form.locale }}
+            <v-select
+              v-model="form.locale"
+              label="Language"
+              :items="languages"
+              @update:model-value="handleLocaleChange"
+            />
+            <v-select
+              v-model="form.currency"
+              label="Currency"
+              :items="currencies"
+            />
+            <v-select
+              v-model="form.distance_unit"
+              label="Distance unit"
+              :items="distances"
+            />
+
+            <div class="profile-preview">
+              <strong>Preview</strong>
+              <span>Language: {{ form.locale }}</span>
+              <span>Currency: {{ form.currency }}</span>
+              <span>Distance: {{ form.distance_unit }}</span>
             </div>
           </v-card-text>
         </v-card>
@@ -33,11 +59,31 @@
         <v-card class="profile-card mt-4">
           <v-card-title>Security</v-card-title>
           <v-card-text>
-            <v-form ref="passwordForm" @submit.prevent="updatePassword">
-              <v-text-field v-model="passwordForm.current_password" label="Current password" type="password" :rules="[rules.required]" />
-              <v-text-field v-model="passwordForm.password" label="New password" type="password" :rules="[rules.required, rules.minLength(8)]" />
-              <v-text-field v-model="passwordForm.password_confirmation" label="Confirm new password" type="password" :rules="[rules.required, rules.confirmPassword]" />
-              <v-btn type="submit" variant="outlined" block>Update password</v-btn>
+            <div v-if="passwordError" class="form-error">{{ passwordError }}</div>
+
+            <v-form ref="passwordFormRef" @submit.prevent="submitPasswordChange">
+              <v-text-field
+                v-model="passwordForm.current_password"
+                label="Current password"
+                type="password"
+                :rules="[rules.required]"
+              />
+              <v-text-field
+                v-model="passwordForm.password"
+                label="New password"
+                type="password"
+                :rules="[rules.required, rules.minLength(8)]"
+              />
+              <v-text-field
+                v-model="passwordForm.password_confirmation"
+                label="Confirm new password"
+                type="password"
+                :rules="[rules.required, rules.confirmPassword]"
+              />
+
+              <v-btn class="ui-btn-secondary profile-block-btn" type="submit" variant="outlined" block>
+                Update password
+              </v-btn>
             </v-form>
           </v-card-text>
         </v-card>
@@ -45,18 +91,31 @@
         <v-card class="profile-card mt-4 danger-zone">
           <v-card-title>Delete account</v-card-title>
           <v-card-text>
-            <p>This permanently deletes your account and all garage data.</p>
+            <p class="work-item-sub">
+              This permanently deletes your account and all garage data.
+            </p>
+
+            <div v-if="deleteError" class="form-error">{{ deleteError }}</div>
+
             <v-form @submit.prevent="deleteAccount">
-              <v-text-field v-model="deleteForm.password" label="Type password to confirm" type="password" />
-              <v-btn type="submit" color="error" block>Delete account</v-btn>
+              <v-text-field
+                v-model="deleteForm.password"
+                label="Type password to confirm"
+                type="password"
+              />
+              <v-btn class="profile-block-btn" type="submit" color="error" block>
+                Delete account
+              </v-btn>
             </v-form>
           </v-card-text>
         </v-card>
 
-  <div class="save-actions">
+        <div class="save-actions">
           <v-btn to="/app" class="mr-2" variant="text">Back to dashboard</v-btn>
-          <v-btn type="submit" color="primary">Save profile</v-btn>
+          <v-btn class="ui-btn-primary" type="submit" :loading="savingProfile">Save profile</v-btn>
         </div>
+      </v-form>
+    </section>
 
     <v-snackbar v-model="showSaved" color="success" timeout="3000">
       Profile updated
@@ -65,8 +124,6 @@
     <v-snackbar v-model="showPassword" color="success" timeout="3000">
       Password updated
     </v-snackbar>
-      </v-form>
-    </v-container>
   </MainLayout>
 </template>
 
@@ -79,40 +136,40 @@ import MainLayout from '../layouts/MainLayout.vue'
 const router = useRouter()
 const auth = useAuthStore()
 
-onMounted(() => {
-  form.login = auth.user?.login || ''
-  form.display_name = auth.user?.display_name || ''
-  form.locale = auth.user?.locale || 'en'
-  auth.setUserLocale(form.locale)
+const formRef = ref(null)
+const passwordFormRef = ref(null)
+
+const savingProfile = ref(false)
+const showSaved = ref(false)
+const showPassword = ref(false)
+
+const profileError = ref('')
+const passwordError = ref('')
+const deleteError = ref('')
+
+const form = reactive({
+  login: '',
+  display_name: '',
+  locale: 'en',
+  theme: 'light',
+  currency: 'EUR',
+  distance_unit: 'km'
 })
 
-const formRef = ref()
 const passwordForm = reactive({
   current_password: '',
   password: '',
   password_confirmation: ''
 })
+
 const deleteForm = reactive({
   password: ''
 })
-
-const form = reactive({
-  login: auth.user?.login || '',
-  display_name: auth.user?.display_name || '',
-  locale: auth.user?.locale || 'en',
-  theme: auth.user?.theme || 'light',
-  currency_unit: auth.user?.currency_unit || 'EUR',
-  distance_unit: auth.user?.distance_unit || 'km'
-})
-
-auth.setUserLocale(form.locale)
 
 const languages = [
   { title: 'English', value: 'en' },
   { title: 'Latviešu', value: 'lv' }
 ]
-
-// Removed theme toggle - light only
 
 const currencies = [
   { title: 'EUR', value: 'EUR' },
@@ -126,73 +183,94 @@ const distances = [
 ]
 
 const rules = {
-  required: v => !!v || 'Required',
-  minLength: v => (v && v.length >= 8) || 'Minimum 8 characters',
-  confirmPassword: v => v === passwordForm.password || 'Passwords must match'
+  required: (v) => !!v || 'Required',
+  minLength: (v) => (v && v.length >= 8) || 'Minimum 8 characters',
+  confirmPassword: (v) => v === passwordForm.password || 'Passwords must match'
 }
+
+onMounted(() => {
+  form.login = auth.user?.login || ''
+  form.display_name = auth.user?.display_name || ''
+  form.locale = auth.user?.locale || 'en'
+  form.theme = auth.user?.theme || 'light'
+  form.currency = auth.user?.currency || 'EUR'
+  form.distance_unit = auth.user?.distance_unit || 'km'
+
+  auth.setUserLocale(form.locale)
+})
 
 const handleLocaleChange = (locale) => {
   auth.setUserLocale(locale)
 }
 
-// handleThemeChange removed
-
 const submitProfile = async () => {
-  const valid = await formRef.value?.validate()
-  if (!valid) return
+  profileError.value = ''
+
+  const validation = await formRef.value?.validate()
+  if (!validation?.valid) return
+
+  savingProfile.value = true
 
   try {
     const updated = await auth.updateProfile(form)
     auth.user = updated
-  } catch (e) {
-    console.error(e)
+    showSaved.value = true
+  } catch (error) {
+    profileError.value =
+      error?.response?.data?.message ||
+      auth.extractError(error) ||
+      'Failed to update profile'
+  } finally {
+    savingProfile.value = false
   }
 }
 
-const updatePassword = async () => {
+const submitPasswordChange = async () => {
+  passwordError.value = ''
+
+  const validation = await passwordFormRef.value?.validate()
+  if (!validation?.valid) return
+
   try {
-    await auth.updatePassword(passwordForm)
-    Object.assign(passwordForm, { current_password: '', password: '', password_confirmation: '' })
-  } catch (e) {
-    console.error(e)
+    await auth.updatePassword({
+      current_password: passwordForm.current_password,
+      password: passwordForm.password,
+      password_confirmation: passwordForm.password_confirmation
+    })
+
+    passwordForm.current_password = ''
+    passwordForm.password = ''
+    passwordForm.password_confirmation = ''
+
+    showPassword.value = true
+  } catch (error) {
+    passwordError.value =
+      error?.response?.data?.message ||
+      auth.extractError(error) ||
+      'Failed to update password'
   }
 }
 
 const deleteAccount = async () => {
-  if (!confirm('Really delete?')) return
+  deleteError.value = ''
+
+  if (!deleteForm.password) {
+    deleteError.value = 'Password is required'
+    return
+  }
+
+  if (!window.confirm('Really delete your account? This action cannot be undone.')) {
+    return
+  }
+
   try {
     await auth.deleteAccount({ password: deleteForm.password })
-  } catch (e) {
-    console.error(e)
+    router.push({ name: 'home' })
+  } catch (error) {
+    deleteError.value =
+      error?.response?.data?.message ||
+      auth.extractError(error) ||
+      'Failed to delete account'
   }
 }
-
-
-
 </script>
-
-<style scoped>
-.max-w-lg {
-  max-width: 600px;
-}
-
-.profile-card {
-  margin-bottom: 1rem;
-}
-
-.danger-zone {
-  border-left: 4px solid theme('colors.error');
-}
-
-.save-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 2rem;
-  gap: 1rem;
-}
-
-.mr-2 {
-  margin-right: 0.5rem;
-}
-</style>
-
