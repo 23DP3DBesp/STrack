@@ -11,6 +11,8 @@ class UserFactory extends Factory
     {
         return [
             'login' => fake()->unique()->userName(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
             'password' => Hash::make('Password123!'),
         ];
     }

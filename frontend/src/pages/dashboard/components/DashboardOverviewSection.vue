@@ -112,7 +112,7 @@
           :options="chartOptions"
         />
 
-        <div v-else class="empty-card">
+        <div v-else class="chart-empty-state">
           {{ t('dashboard.needFuelLogsForChart') }}
         </div>
       </article>
@@ -131,7 +131,7 @@
           :options="stackedChartOptions"
         />
 
-        <div v-else class="empty-card">
+        <div v-else class="chart-empty-state">
           {{ t('dashboard.needExpensesForBreakdown') }}
         </div>
       </article>

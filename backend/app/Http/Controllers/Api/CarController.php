@@ -66,11 +66,11 @@ class CarController extends Controller
         $this->ensureOwnedCar($request, $car);
 
         $validated = $request->validate([
-            'brand' => ['required', 'string', 'max:120'],
-            'model' => ['required', 'string', 'max:120'],
-            'year' => ['required', 'integer', 'min:1900', 'max:2100'],
-            'engine_volume' => ['required', 'numeric', 'min:0.1', 'max:20'],
-            'license_plate' => ['required', 'string', 'max:30'],
+            'brand' => ['sometimes', 'required', 'string', 'max:120'],
+            'model' => ['sometimes', 'required', 'string', 'max:120'],
+            'year' => ['sometimes', 'required', 'integer', 'min:1900', 'max:2100'],
+            'engine_volume' => ['sometimes', 'required', 'numeric', 'min:0.1', 'max:20'],
+            'license_plate' => ['sometimes', 'required', 'string', 'max:30'],
             'insurance_until' => ['nullable', 'date'],
             'inspection_until' => ['nullable', 'date'],
         ]);

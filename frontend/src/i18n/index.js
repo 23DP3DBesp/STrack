@@ -43,12 +43,27 @@ const messages = {
     auth: {
       loginTitle: 'Log in to your account',
       continue: 'Continue to your garage',
+      email: 'Email',
       login: 'Login',
       password: 'Password',
+      passwordConfirm: 'Confirm password',
       signIn: 'Sign in',
       registerTitle: 'Create new account',
       create: 'Create driver profile',
-      signUp: 'Sign up'
+      signUp: 'Sign up',
+      verifyFirst: 'Please verify your email before logging in.',
+      needVerificationHint: 'Your account exists but email confirmation is still pending.',
+      resendVerification: 'Resend verification email',
+      verifyEmailTitle: 'Verify your email',
+      verifyEmailSubtitle: 'We sent a confirmation link to your email address. Open it to activate your account.',
+      verifyEmailSentFallback: 'Account created, but the verification email could not be sent right now. Check Mailtrap config and resend it.',
+      verificationResent: 'A new verification email has been sent if the account exists and is still unverified.',
+      verificationSuccess: 'Your email is verified. You can now sign in.',
+      verificationAlreadyDone: 'This email was already verified. You can sign in.',
+      verificationInvalid: 'This verification link is invalid or expired. Request a new one.',
+      goToLogin: 'Go to login',
+      goToRegister: 'Create account',
+      sendAgain: 'Send again'
     },
 
     dashboard: {
@@ -183,12 +198,27 @@ const messages = {
     auth: {
       loginTitle: 'Ienāc savā kontā',
       continue: 'Turpini uz savu garāžu',
+      email: 'E-pasts',
       login: 'Lietotājvārds',
       password: 'Parole',
+      passwordConfirm: 'Apstiprini paroli',
       signIn: 'Ieiet',
       registerTitle: 'Izveido jaunu kontu',
       create: 'Izveido vadītāja profilu',
-      signUp: 'Reģistrēties'
+      signUp: 'Reģistrēties',
+      verifyFirst: 'Pirms ieiešanas apstiprini savu e-pastu.',
+      needVerificationHint: 'Konts ir izveidots, bet e-pasta apstiprinājums vēl nav pabeigts.',
+      resendVerification: 'Nosūtīt apstiprinājuma e-pastu vēlreiz',
+      verifyEmailTitle: 'Apstiprini e-pastu',
+      verifyEmailSubtitle: 'Mēs nosūtījām apstiprinājuma saiti uz tavu e-pastu. Atver to, lai aktivizētu kontu.',
+      verifyEmailSentFallback: 'Konts ir izveidots, bet apstiprinājuma e-pastu pašlaik nevarēja nosūtīt. Pārbaudi Mailtrap konfigurāciju un nosūti vēlreiz.',
+      verificationResent: 'Ja konts eksistē un vēl nav apstiprināts, jauns e-pasts tika nosūtīts.',
+      verificationSuccess: 'E-pasts ir apstiprināts. Tagad vari ieiet.',
+      verificationAlreadyDone: 'Šis e-pasts jau bija apstiprināts. Vari ieiet.',
+      verificationInvalid: 'Šī apstiprinājuma saite ir nederīga vai beigusies. Pieprasi jaunu.',
+      goToLogin: 'Uz ieiešanu',
+      goToRegister: 'Izveidot kontu',
+      sendAgain: 'Nosūtīt vēlreiz'
     },
 
     dashboard: {

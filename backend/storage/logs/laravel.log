@@ -19321,3 +19321,33 @@
 #19 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('/Users/denisbes...')
 #20 {main}
 "} 
+[2026-04-23 21:27:45] local.WARNING: Mailtrap verification email skipped because configuration is missing. {"user_id":3} 
+[2026-04-23 21:28:54] local.WARNING: Mailtrap verification email skipped because configuration is missing. {"user_id":3} 
+[2026-04-23 21:29:19] local.WARNING: Mailtrap verification email skipped because configuration is missing. {"user_id":3} 
+[2026-04-23 21:30:05] local.ERROR: Writing to /Users/denisbespalov/.config/psysh/psysh_history is not allowed. {"exception":"[object] (ErrorException(code: 0): Writing to /Users/denisbespalov/.config/psysh/psysh_history is not allowed. at /Users/denisbespalov/Documents/STrack/backend/vendor/psy/psysh/src/ConfigPaths.php:480)
+[stacktrace]
+#0 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(258): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError(1024, 'Writing to /Use...', '/Users/denisbes...', 480)
+#1 [internal function]: Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:Illuminate\\Foundation\\Bootstrap\\HandleExceptions::forwardsTo():257}(1024, 'Writing to /Use...', '/Users/denisbes...', 480)
+#2 /Users/denisbespalov/Documents/STrack/backend/vendor/psy/psysh/src/ConfigPaths.php(480): trigger_error('Writing to /Use...', 1024)
+#3 /Users/denisbespalov/Documents/STrack/backend/vendor/psy/psysh/src/Configuration.php(982): Psy\\ConfigPaths::touchFileWithMkdir('/Users/denisbes...')
+#4 /Users/denisbespalov/Documents/STrack/backend/vendor/psy/psysh/src/Configuration.php(1020): Psy\\Configuration->setHistoryFile('/Users/denisbes...')
+#5 /Users/denisbespalov/Documents/STrack/backend/vendor/psy/psysh/src/Configuration.php(1199): Psy\\Configuration->getHistoryFile()
+#6 /Users/denisbespalov/Documents/STrack/backend/vendor/psy/psysh/src/Shell.php(187): Psy\\Configuration->getReadline()
+#7 /Users/denisbespalov/Documents/STrack/backend/vendor/psy/psysh/src/Shell.php(1863): Psy\\Shell->boot()
+#8 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/tinker/src/Console/TinkerCommand.php(77): Psy\\Shell->execute('dump(config('se...')
+#9 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel\\Tinker\\Console\\TinkerCommand->handle()
+#10 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#11 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#12 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#13 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#14 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call(Array)
+#15 /Users/denisbespalov/Documents/STrack/backend/vendor/symfony/console/Command/Command.php(341): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#16 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#17 /Users/denisbespalov/Documents/STrack/backend/vendor/symfony/console/Application.php(1117): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 /Users/denisbespalov/Documents/STrack/backend/vendor/symfony/console/Application.php(356): Symfony\\Component\\Console\\Application->doRunCommand(Object(Laravel\\Tinker\\Console\\TinkerCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 /Users/denisbespalov/Documents/STrack/backend/vendor/symfony/console/Application.php(195): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#20 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#21 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#22 /Users/denisbespalov/Documents/STrack/backend/artisan(16): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
+#23 {main}
+"} 

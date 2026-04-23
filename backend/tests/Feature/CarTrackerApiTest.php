@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Car;
 use App\Models\FuelLog;
+use App\Models\RecurringCost;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -114,5 +115,57 @@ class CarTrackerApiTest extends TestCase
         $response->assertOk()
             ->assertJsonCount(1)
             ->assertJsonPath('0.type', 'Suspension check');
+    }
+
+    public function test_user_can_update_only_expiry_dates_for_car(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $car = Car::query()->create([
+            'user_id' => $user->id,
+            'brand' => 'BMW',
+            'model' => '730d',
+            'year' => 2005,
+            'engine_volume' => 3.0,
+            'license_plate' => 'KP2133',
+        ]);
+
+        $response = $this->putJson("/api/cars/{$car->id}", [
+            'insurance_until' => '2026-12-10',
+            'inspection_until' => '2026-11-01',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('insurance_until', '2026-12-10')
+            ->assertJsonPath('inspection_until', '2026-11-01')
+            ->assertJsonPath('brand', 'BMW')
+            ->assertJsonPath('model', '730d');
+
+        $this->assertDatabaseHas('cars', [
+            'id' => $car->id,
+            'insurance_until' => '2026-12-10',
+            'inspection_until' => '2026-11-01',
+            'brand' => 'BMW',
+            'model' => '730d',
+        ]);
+    }
+
+    public function test_recurring_cost_routes_require_authentication(): void
+    {
+        $user = User::factory()->create();
+
+        $car = Car::query()->create([
+            'user_id' => $user->id,
+            'brand' => 'Honda',
+            'model' => 'S2000',
+            'year' => 2008,
+            'engine_volume' => 2.0,
+            'license_plate' => 'S2K-200',
+        ]);
+
+        $response = $this->getJson("/api/cars/{$car->id}/recurring-costs");
+
+        $response->assertUnauthorized();
     }
 }

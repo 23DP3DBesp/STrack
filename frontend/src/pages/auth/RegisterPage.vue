@@ -33,6 +33,14 @@
 
           <v-form class="mt-4" @submit.prevent="submit">
             <v-text-field
+              v-model="email"
+              :label="t('auth.email')"
+              type="email"
+              autocomplete="email"
+              required
+            />
+
+            <v-text-field
               v-model="login"
               :label="t('auth.login')"
               autocomplete="username"
@@ -42,6 +50,14 @@
             <v-text-field
               v-model="password"
               :label="t('auth.password')"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+
+            <v-text-field
+              v-model="passwordConfirmation"
+              :label="t('auth.passwordConfirm')"
               type="password"
               autocomplete="new-password"
               required
@@ -81,8 +97,10 @@ const router = useRouter()
 const auth = useAuthStore()
 const { t } = useI18n()
 
+const email = ref('')
 const login = ref('')
 const password = ref('')
+const passwordConfirmation = ref('')
 
 onMounted(() => {
   auth.clearError()
@@ -93,12 +111,21 @@ const goLogin = () => router.push({ name: 'login' })
 
 const submit = async () => {
   try {
-    await auth.register({
+    const response = await auth.register({
+      email: email.value,
       login: login.value,
-      password: password.value
+      password: password.value,
+      password_confirmation: passwordConfirmation.value
     })
 
-    router.push({ name: 'dashboard' })
+    router.push({
+      name: 'verify-email',
+      query: {
+        status: 'notice',
+        email: email.value,
+        emailSent: response?.verification_email_sent ? '1' : '0'
+      }
+    })
   } catch (_) {
   }
 }

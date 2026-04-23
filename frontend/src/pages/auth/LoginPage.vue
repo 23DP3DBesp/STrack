@@ -64,6 +64,16 @@
                 Register
               </v-btn>
             </div>
+
+            <div
+              v-if="auth.error === t('auth.verifyFirst')"
+              class="auth-inline-note"
+            >
+              <span>{{ t('auth.needVerificationHint') }}</span>
+              <button type="button" class="auth-inline-link" @click="resendVerification">
+                {{ t('auth.resendVerification') }}
+              </button>
+            </div>
           </v-form>
         </section>
       </div>
@@ -90,6 +100,21 @@ onMounted(() => {
 
 const goHome = () => router.push({ name: 'home' })
 const goRegister = () => router.push({ name: 'register' })
+
+const resendVerification = async () => {
+  try {
+    await auth.resendVerificationEmail({ login: login.value })
+
+    router.push({
+      name: 'verify-email',
+      query: {
+        status: 'resent',
+        login: login.value
+      }
+    })
+  } catch (_) {
+  }
+}
 
 const submit = async () => {
   try {

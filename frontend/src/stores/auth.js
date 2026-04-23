@@ -5,6 +5,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     token: localStorage.getItem('car_tracker_token') || null,
+    pendingVerificationEmail: localStorage.getItem('car_tracker_pending_verification_email') || '',
     loading: false,
     error: null
   }),
@@ -35,7 +36,8 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const { data } = await api.post('/auth/register', payload)
-        this.setSession(data.user, data.token)
+        this.setPendingVerificationEmail(data.email || payload.email || '')
+        return data
       } catch (error) {
         this.error = this.extractError(error)
         throw error
@@ -68,6 +70,26 @@ export const useAuthStore = defineStore('auth', {
 
       localStorage.removeItem('car_tracker_token')
       localStorage.removeItem('user')
+    },
+
+    async resendVerificationEmail(payload) {
+      this.loading = true
+      this.error = null
+
+      try {
+        const { data } = await api.post('/auth/email/verification-notification', payload)
+
+        if (payload?.email) {
+          this.setPendingVerificationEmail(payload.email)
+        }
+
+        return data
+      } catch (error) {
+        this.error = this.extractError(error)
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
 
     async updateProfile(payload) {
@@ -103,6 +125,7 @@ export const useAuthStore = defineStore('auth', {
     setSession(user, token) {
       this.user = user
       this.token = token
+      this.setPendingVerificationEmail('')
 
       localStorage.setItem('car_tracker_token', token)
       localStorage.setItem('user', JSON.stringify(user))
@@ -110,6 +133,16 @@ export const useAuthStore = defineStore('auth', {
 
     clearError() {
       this.error = null
+    },
+
+    setPendingVerificationEmail(email) {
+      this.pendingVerificationEmail = email || ''
+
+      if (this.pendingVerificationEmail) {
+        localStorage.setItem('car_tracker_pending_verification_email', this.pendingVerificationEmail)
+      } else {
+        localStorage.removeItem('car_tracker_pending_verification_email')
+      }
     },
 
     setUserLocale(locale) {
@@ -135,6 +168,10 @@ export const useAuthStore = defineStore('auth', {
 
       if (error?.response?.status >= 500) {
         return 'Server error. Check Laravel logs and database connection.'
+      }
+
+      if (error?.response?.data?.code === 'email_not_verified') {
+        return 'Please verify your email before logging in.'
       }
 
       return apiMessage || 'Request failed. Please try again.'

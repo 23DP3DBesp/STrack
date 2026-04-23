@@ -10,13 +10,12 @@ use App\Http\Controllers\Api\RepairController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RecurringCostController;
 
-Route::get('/cars/{car}/recurring-costs', [RecurringCostController::class, 'index']);
-Route::post('/cars/{car}/recurring-costs', [RecurringCostController::class, 'store']);
-Route::put('/recurring-costs/{recurringCost}', [RecurringCostController::class, 'update']);
-Route::delete('/recurring-costs/{recurringCost}', [RecurringCostController::class, 'destroy']);
-
 Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:login');
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/auth/email/verification-notification', [AuthController::class, 'resendVerificationEmail'])
+    ->middleware('throttle:verification-email');
+Route::get('/auth/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+    ->name('auth.verification.verify');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -48,4 +47,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/cars/{car}/mods', [ModController::class, 'store']);
     Route::put('/mods/{mod}', [ModController::class, 'update']);
     Route::delete('/mods/{mod}', [ModController::class, 'destroy']);
+
+    Route::get('/cars/{car}/recurring-costs', [RecurringCostController::class, 'index']);
+    Route::post('/cars/{car}/recurring-costs', [RecurringCostController::class, 'store']);
+    Route::put('/recurring-costs/{recurringCost}', [RecurringCostController::class, 'update']);
+    Route::delete('/recurring-costs/{recurringCost}', [RecurringCostController::class, 'destroy']);
 });
