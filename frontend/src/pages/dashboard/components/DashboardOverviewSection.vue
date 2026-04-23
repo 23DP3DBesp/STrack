@@ -136,8 +136,6 @@
         </div>
       </article>
     </section>
-
-
   </section>
 </template>
 

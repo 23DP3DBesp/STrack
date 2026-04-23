@@ -19351,3 +19351,4 @@
 #22 /Users/denisbespalov/Documents/STrack/backend/artisan(16): Illuminate\\Foundation\\Application->handleCommand(Object(Symfony\\Component\\Console\\Input\\ArgvInput))
 #23 {main}
 "} 
+[2026-04-23 21:42:24] local.ERROR: Mailer verification email threw an exception. {"user_id":2,"message":"Symfony\\Component\\Mime\\Address::__construct(): Argument #1 ($address) must be of type string, null given, called in /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Mail/Message.php on line 247"} 

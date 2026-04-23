@@ -4,9 +4,9 @@
     :close-on-content-click="false"
     location="bottom start"
   >
-    <template #activator="{ props }">
+    <template #activator="{ props: activatorProps }">
       <v-text-field
-        v-bind="props"
+        v-bind="activatorProps"
         :label="label"
         :model-value="displayValue"
         :placeholder="placeholder"

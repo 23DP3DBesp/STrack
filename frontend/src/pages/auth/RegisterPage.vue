@@ -50,16 +50,20 @@
             <v-text-field
               v-model="password"
               :label="t('auth.password')"
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
               autocomplete="new-password"
+              :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              @click:append-inner="showPassword = !showPassword"
               required
             />
 
             <v-text-field
               v-model="passwordConfirmation"
               :label="t('auth.passwordConfirm')"
-              type="password"
+              :type="showPasswordConfirmation ? 'text' : 'password'"
               autocomplete="new-password"
+              :append-inner-icon="showPasswordConfirmation ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              @click:append-inner="showPasswordConfirmation = !showPasswordConfirmation"
               required
             />
 
@@ -101,6 +105,8 @@ const email = ref('')
 const login = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
+const showPassword = ref(false)
+const showPasswordConfirmation = ref(false)
 
 onMounted(() => {
   auth.clearError()

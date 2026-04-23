@@ -42,8 +42,10 @@
             <v-text-field
               v-model="password"
               :label="t('auth.password')"
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
               autocomplete="current-password"
+              :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              @click:append-inner="showPassword = !showPassword"
               required
             />
 
@@ -93,6 +95,7 @@ const { t } = useI18n()
 
 const login = ref('')
 const password = ref('')
+const showPassword = ref(false)
 
 onMounted(() => {
   auth.clearError()

@@ -212,8 +212,7 @@ const submitProfile = async () => {
   savingProfile.value = true
 
   try {
-    const updated = await auth.updateProfile(form)
-    auth.user = updated
+    await auth.updateProfile(form)
     showSaved.value = true
   } catch (error) {
     profileError.value =
