@@ -19297,3 +19297,27 @@
 #49 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('/Users/denisbes...')
 #50 {main}
 "} 
+[2026-04-23 00:07:57] local.ERROR: preg_match(): No ending delimiter '^' found {"exception":"[object] (ErrorException(code: 0): preg_match(): No ending delimiter '^' found at /Users/denisbespalov/Documents/STrack/backend/vendor/fruitcake/php-cors/src/CorsService.php:183)
+[stacktrace]
+#0 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(258): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError(2, 'preg_match(): N...', '/Users/denisbes...', 183)
+#1 [internal function]: Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:Illuminate\\Foundation\\Bootstrap\\HandleExceptions::forwardsTo():257}(2, 'preg_match(): N...', '/Users/denisbes...', 183)
+#2 /Users/denisbespalov/Documents/STrack/backend/vendor/fruitcake/php-cors/src/CorsService.php(183): preg_match('^https:\\\\/\\\\/(.*\\\\...', 'http://127.0.0....')
+#3 /Users/denisbespalov/Documents/STrack/backend/vendor/fruitcake/php-cors/src/CorsService.php(214): Fruitcake\\Cors\\CorsService->isOriginAllowed(Object(Illuminate\\Http\\Request))
+#4 /Users/denisbespalov/Documents/STrack/backend/vendor/fruitcake/php-cors/src/CorsService.php(155): Fruitcake\\Cors\\CorsService->configureAllowedOrigin(Object(Symfony\\Component\\HttpFoundation\\Response), Object(Illuminate\\Http\\Request))
+#5 /Users/denisbespalov/Documents/STrack/backend/vendor/fruitcake/php-cors/src/CorsService.php(150): Fruitcake\\Cors\\CorsService->addPreflightRequestHeaders(Object(Symfony\\Component\\HttpFoundation\\Response), Object(Illuminate\\Http\\Request))
+#6 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(55): Fruitcake\\Cors\\CorsService->handlePreflightRequest(Object(Illuminate\\Http\\Request))
+#7 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#9 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#10 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#11 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#12 /Users/denisbespalov/Documents/STrack/backend/app/Http/Middleware/SetSecurityHeaders.php(13): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#13 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(209): App\\Http\\Middleware\\SetSecurityHeaders->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#14 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#15 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#16 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#17 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1220): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#18 /Users/denisbespalov/Documents/STrack/backend/public/index.php(14): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
+#19 /Users/denisbespalov/Documents/STrack/backend/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('/Users/denisbes...')
+#20 {main}
+"} 

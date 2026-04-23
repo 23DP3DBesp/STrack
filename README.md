@@ -49,6 +49,14 @@ STrack/
 │  ├─ src/
 │  │  ├─ pages/
 │  │  │  ├─ DashboardPage.vue
+│  │  │  ├─ dashboard/
+│  │  │  │  ├─ components/
+│  │  │  │  │  ├─ DashboardOverviewSection.vue
+│  │  │  │  │  └─ DashboardGarageSection.vue
+│  │  │  │  ├─ charts.js
+│  │  │  │  ├─ formatters.js
+│  │  │  │  ├─ forms.js
+│  │  │  │  └─ reminders.js
 │  │  │  ├─ ProfilePage.vue
 │  │  │  ├─ HomePage.vue
 │  │  │  └─ auth/LoginPage.vue + RegisterPage.vue

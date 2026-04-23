@@ -13,8 +13,6 @@ const toNumber = (value) => Number(value || 0)
 
 const monthKeyFromDate = (value) => String(value || '').slice(0, 7)
 
-const sameMonth = (value, targetMonth) => monthKeyFromDate(value) === targetMonth
-
 export const useGarageStore = defineStore('garage', {
   state: () => ({
     summary: {
@@ -69,21 +67,6 @@ export const useGarageStore = defineStore('garage', {
     latestFuelLog: (state) => state.fuelLogs[0] || null,
     latestRepair: (state) => state.repairs[0] || null,
     latestMod: (state) => state.mods[0] || null,
-
-    currentMonthKey: () => {
-      const now = new Date()
-      const year = now.getFullYear()
-      const month = String(now.getMonth() + 1).padStart(2, '0')
-      return `${year}-${month}`
-    },
-
-    previousMonthKey() {
-      const now = new Date()
-      const previous = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-      const year = previous.getFullYear()
-      const month = String(previous.getMonth() + 1).padStart(2, '0')
-      return `${year}-${month}`
-    },
 
     selectedPeriodLabel: (state) => {
       const options = {
@@ -210,24 +193,6 @@ export const useGarageStore = defineStore('garage', {
         }))
     },
 
-    currentMonthChanges() {
-      const month = this.currentMonthKey
-
-      const fuel = this.fuelLogs.filter((item) => sameMonth(item.date, month))
-      const repairs = this.repairs.filter((item) => sameMonth(item.date, month))
-      const mods = this.mods.filter((item) => sameMonth(item.date_installed, month))
-
-      return {
-        fuelLogsAdded: fuel.length,
-        repairsAdded: repairs.length,
-        modsAdded: mods.length,
-        spentThisMonth:
-          fuel.reduce((sum, item) => sum + toNumber(item.total_price), 0) +
-          repairs.reduce((sum, item) => sum + toNumber(item.cost), 0) +
-          mods.reduce((sum, item) => sum + toNumber(item.cost), 0)
-      }
-    },
-
     resaleScore() {
       if (!this.selectedCar) return 0
 
@@ -257,146 +222,6 @@ export const useGarageStore = defineStore('garage', {
       if (hasEnoughSpendHistory) score += 10
 
       return Math.min(score, 100)
-    },
-
-    compareCars() {
-      return [...this.cars]
-        .map((car) => {
-          const fuel = toNumber(car.fuel_logs_total_spent)
-          const repairs = toNumber(car.repairs_total_spent)
-          const mods = toNumber(car.mods_total_spent)
-          const total = fuel + repairs + mods
-
-          return {
-            id: car.id,
-            name: `${car.brand} ${car.model}`,
-            year: car.year,
-            total,
-            fuel,
-            repairs,
-            mods,
-            fuelLogsCount: toNumber(car.fuel_logs_count),
-            repairsCount: toNumber(car.repairs_count),
-            modsCount: toNumber(car.mods_count),
-            isSelected: car.id === this.selectedCarId
-          }
-        })
-        .sort((a, b) => b.total - a.total)
-    },
-
-    upcomingExpenses() {
-      if (!this.selectedCar) return []
-
-      const items = []
-      const now = new Date()
-
-      if (this.selectedCar.insurance_until) {
-        const insuranceDate = new Date(this.selectedCar.insurance_until)
-        const diff = Math.ceil((insuranceDate.getTime() - now.getTime()) / 86400000)
-
-        if (diff <= 45) {
-          items.push({
-            type: 'insurance',
-            title: 'Insurance renewal',
-            daysLeft: diff,
-            message: diff < 0
-              ? `Insurance expired ${Math.abs(diff)} days ago.`
-              : `Insurance expires in ${diff} days.`
-          })
-        }
-      }
-
-      if (this.selectedCar.inspection_until) {
-        const inspectionDate = new Date(this.selectedCar.inspection_until)
-        const diff = Math.ceil((inspectionDate.getTime() - now.getTime()) / 86400000)
-
-        if (diff <= 45) {
-          items.push({
-            type: 'inspection',
-            title: 'Technical inspection',
-            daysLeft: diff,
-            message: diff < 0
-              ? `Inspection expired ${Math.abs(diff)} days ago.`
-              : `Inspection expires in ${diff} days.`
-          })
-        }
-      }
-
-      const oilService = this.repairs.find((item) => item.type?.toLowerCase().includes('oil'))
-      const latestFuel = this.latestFuelLog
-
-      if (oilService && latestFuel) {
-        const kilometersSinceOil = toNumber(latestFuel.mileage) - toNumber(oilService.mileage)
-        const kilometersLeft = 10000 - kilometersSinceOil
-
-        if (kilometersLeft <= 1500) {
-          items.push({
-            type: 'service',
-            title: 'Oil change',
-            daysLeft: null,
-            message: kilometersLeft <= 0
-              ? `Oil service is overdue by ${Math.abs(kilometersLeft)} km.`
-              : `${kilometersLeft} km left until next oil service.`
-          })
-        }
-      }
-
-      return items
-    },
-
-    assistantInsights() {
-      if (!this.selectedCar) return []
-
-      const insights = []
-
-      if (this.costPerKm > 0) {
-        insights.push({
-          title: 'Ownership cost per km',
-          message: `Your tracked ownership cost is ${this.costPerKm.toFixed(2)} per km for the selected period.`
-        })
-      }
-
-      if (this.averageFuelConsumption > 0) {
-        insights.push({
-          title: 'Average fuel consumption',
-          message: `Average fuel consumption is ${this.averageFuelConsumption.toFixed(2)} L/100km.`
-        })
-      }
-
-      const highestSpendMonth = [...this.monthlyExpenseBreakdown].sort((a, b) => b.total - a.total)[0]
-      if (highestSpendMonth) {
-        insights.push({
-          title: 'Highest spending month',
-          message: `The highest tracked monthly spend was ${highestSpendMonth.total.toFixed(2)} in ${highestSpendMonth.month}.`
-        })
-      }
-
-      const comparison = this.compareCars
-      if (comparison.length > 1) {
-        const selected = comparison.find((item) => item.isSelected)
-        const highest = comparison[0]
-
-        if (selected && highest && selected.id === highest.id) {
-          insights.push({
-            title: 'Most expensive car in fleet',
-            message: `${selected.name} currently has the highest tracked total spend in your garage.`
-          })
-        }
-      }
-
-      if (this.resaleScore >= 80) {
-        insights.push({
-          title: 'Strong resale history',
-          message: `This car has a resale readiness score of ${this.resaleScore}/100 based on records and maintenance history.`
-        })
-      } else if (this.resaleScore < 50) {
-        insights.push({
-          title: 'Improve resale records',
-          message: `Resale readiness is ${this.resaleScore}/100. Add more service, fuel, and expiry data to strengthen the history.`
-        })
-      }
-
-      return insights
     },
 
     selectedCarContext() {
