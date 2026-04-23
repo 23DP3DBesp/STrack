@@ -193,37 +193,6 @@ export const useGarageStore = defineStore('garage', {
         }))
     },
 
-    resaleScore() {
-      if (!this.selectedCar) return 0
-
-      let score = 0
-
-      if (this.fuelLogs.length >= 3) score += 20
-      else if (this.fuelLogs.length >= 1) score += 10
-
-      if (this.repairs.length >= 2) score += 20
-      else if (this.repairs.length >= 1) score += 10
-
-      if (this.mods.length >= 1) score += 10
-
-      if (this.selectedCar.insurance_until) score += 10
-      if (this.selectedCar.inspection_until) score += 10
-
-      const hasOilService = this.repairs.some((item) => item.type?.toLowerCase().includes('oil'))
-      if (hasOilService) score += 10
-
-      const latestRepair = this.latestRepair
-      if (latestRepair) {
-        const daysSinceRepair = Math.floor((Date.now() - new Date(latestRepair.date).getTime()) / 86400000)
-        if (daysSinceRepair <= 180) score += 10
-      }
-
-      const hasEnoughSpendHistory = this.selectedCarTotalSpend > 0
-      if (hasEnoughSpendHistory) score += 10
-
-      return Math.min(score, 100)
-    },
-
     selectedCarContext() {
       if (!this.selectedCar) return null
 
@@ -244,8 +213,7 @@ export const useGarageStore = defineStore('garage', {
           totalSpend: this.selectedCarTotalSpend,
           averageFuelConsumption: this.averageFuelConsumption,
           totalDistanceTracked: this.totalDistanceTracked,
-          costPerKm: this.costPerKm,
-          resaleScore: this.resaleScore
+          costPerKm: this.costPerKm
         }
       }
     }

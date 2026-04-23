@@ -35,6 +35,11 @@
     </template>
 
     <v-card class="date-menu-card">
+      <div class="date-menu-header">
+        <span class="date-menu-label">{{ label }}</span>
+        <span class="date-menu-hint">{{ currentDateHint }}</span>
+      </div>
+
       <v-date-picker
         :model-value="pickerValue"
         color="primary"
@@ -160,4 +165,73 @@ const clearValue = () => {
   emit('update:modelValue', '')
   open.value = false
 }
+
+const currentDateHint = computed(() => {
+  const now = new Date()
+  const day = String(now.getDate()).padStart(2, '0')
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const year = now.getFullYear()
+  return `Today: ${day}.${month}.${year}`
+})
 </script>
+
+<style scoped>
+.date-menu-card {
+  padding: 16px;
+  min-width: 320px;
+}
+
+.date-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.date-menu-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary, #000);
+}
+
+.date-menu-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary, #666);
+}
+
+.date-menu-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border, #e0e0e0);
+  justify-content: flex-end;
+}
+
+.date-text-field {
+  min-height: 40px;
+}
+
+.date-clear-btn {
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary, #666);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.date-clear-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--color-text-primary, #000);
+}
+
+.compact {
+  font-size: 12px;
+  height: 32px;
+}
+</style>

@@ -8,16 +8,15 @@
       :selected-period-label="garage.selectedPeriodLabel"
       :cost-per-km="garage.costPerKm"
       :total-distance-tracked="garage.totalDistanceTracked"
-      :resale-score="garage.resaleScore"
       :fuel-consumption-chart="fuelConsumptionChart"
       :fuel-consumption-data="fuelConsumptionData"
       :monthly-expense-chart="monthlyExpenseChart"
       :monthly-expense-data="monthlyExpenseData"
       :chart-options="chartOptions"
       :stacked-chart-options="stackedChartOptions"
-      :smart-reminders="smartReminders"
       @add-car="openCarDialog"
       @refresh="reloadAll"
+      @edit-expiry="openExpiryDialog"
     />
 
     <DashboardGarageSection
@@ -161,6 +160,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <ExpiryEditDialog
+      v-model="expiryDialog"
+      :selected-car="selectedCar"
+      @save="onSaveExpiry"
+    />
   </MainLayout>
 </template>
 
@@ -173,6 +178,7 @@ import { useAuthStore } from '../stores/auth'
 import { useGarageStore } from '../stores/garage'
 import DashboardOverviewSection from './dashboard/components/DashboardOverviewSection.vue'
 import DashboardGarageSection from './dashboard/components/DashboardGarageSection.vue'
+import ExpiryEditDialog from './dashboard/components/ExpiryEditDialog.vue'
 import {
   buildChartOptions,
   buildFuelConsumptionChart,
@@ -181,8 +187,8 @@ import {
   buildStackedChartOptions
 } from './dashboard/charts'
 import { createDashboardRules, emptyCarForm, emptyFuelForm, emptyRepairForm, emptyModForm } from './dashboard/forms'
-import { formatCurrency, formatDate } from './dashboard/formatters'
-import { buildSmartReminders } from './dashboard/reminders'
+import { formatCurrency } from './dashboard/formatters'
+import { getDefaultExpiryDate } from './dashboard/expiryHelper'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
 
@@ -196,6 +202,7 @@ const fuelFilters = ref({ date: '' })
 const repairFilters = ref({ date_from: '', date_to: '' })
 
 const carDialog = ref(false)
+const expiryDialog = ref(false)
 const fuelDialog = ref(false)
 const repairDialog = ref(false)
 const modDialog = ref(false)
@@ -232,14 +239,6 @@ const monthlyExpenseData = computed(() => buildMonthlyExpenseData(monthlyExpense
 const chartOptions = computed(() => buildChartOptions(formatCurrency))
 
 const stackedChartOptions = computed(() => buildStackedChartOptions(formatCurrency))
-
-const smartReminders = computed(() =>
-  buildSmartReminders({
-    selectedCar: selectedCar.value,
-    garage,
-    formatDate
-  })
-)
 
 const rules = createDashboardRules(t)
 
@@ -288,10 +287,29 @@ const openCarDialog = (car = null) => {
     ? { ...car }
     : {
         ...emptyCarForm(),
-        year: new Date().getFullYear()
+        year: new Date().getFullYear(),
+        insurance_until: getDefaultExpiryDate(365),
+        inspection_until: getDefaultExpiryDate(365)
       }
 
   carDialog.value = true
+}
+
+const openExpiryDialog = () => {
+  expiryDialog.value = true
+}
+
+const onSaveExpiry = async (data) => {
+  try {
+    await garage.saveCar({
+      id: data.car_id,
+      insurance_until: data.insurance_until,
+      inspection_until: data.inspection_until
+    })
+    expiryDialog.value = false
+  } catch (error) {
+    showError(error?.response?.data?.message || error?.message || 'Update failed')
+  }
 }
 
 const openFuelDialog = async (item = null) => {

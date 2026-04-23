@@ -2,9 +2,7 @@ export const buildSmartReminders = ({ selectedCar, garage, formatDate }) => {
   if (!selectedCar) return []
 
   const reminders = []
-  const latestFuelLog = garage.latestFuelLog
   const latestRepairItem = garage.latestRepair
-  const oilService = garage.repairs.find((item) => item.type?.toLowerCase().includes('oil'))
   const insuranceUntil = selectedCar.insurance_until ? new Date(selectedCar.insurance_until) : null
   const inspectionUntil = selectedCar.inspection_until ? new Date(selectedCar.inspection_until) : null
   const now = new Date()
@@ -16,32 +14,10 @@ export const buildSmartReminders = ({ selectedCar, garage, formatDate }) => {
     })
   }
 
-  if (!oilService) {
-    reminders.push({
-      title: 'No oil service on record',
-      message: 'Logging oil changes makes your maintenance history much stronger for resale.'
-    })
-  } else if (latestFuelLog) {
-    const kilometersSinceOil = Number(latestFuelLog.mileage) - Number(oilService.mileage)
-    const kilometersUntilOil = 10000 - kilometersSinceOil
-
-    if (kilometersUntilOil <= 0) {
-      reminders.push({
-        title: 'Oil service overdue',
-        message: `You are ${Math.abs(kilometersUntilOil)} km past the 10 000 km oil interval.`
-      })
-    } else if (kilometersUntilOil <= 1000) {
-      reminders.push({
-        title: 'Oil service coming soon',
-        message: `${kilometersUntilOil} km left until the next oil service at the 10 000 km interval.`
-      })
-    }
-  }
-
   if (!latestRepairItem) {
     reminders.push({
       title: 'No repairs logged yet',
-      message: 'Even routine service helps build trust when you later sell the car.'
+      message: 'Even routine service entries improve your maintenance history.'
     })
   } else {
     const daysSinceRepair = Math.floor((Date.now() - new Date(latestRepairItem.date).getTime()) / 86400000)
@@ -57,7 +33,7 @@ export const buildSmartReminders = ({ selectedCar, garage, formatDate }) => {
   if (!garage.mods.length) {
     reminders.push({
       title: 'No mods tracked',
-      message: 'If the car is stock, that is still useful information for a clean resale summary.'
+      message: 'If the car is stock, track that too for a complete car history.'
     })
   }
 

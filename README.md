@@ -13,11 +13,12 @@ STRack - Your personal car fleet tracker. Track fuel efficiency, maintenance, re
 
 - 👥 User authentication & profiles
 - 🚗 Multi-car garage management (add/edit cars)
+- 📅 Insurance & inspection expiry tracking with smart reminders
 - ⛽ Fuel logging & analytics (MPG, consumption trends, cost tracking)
 - 🔧 Repair & service history
 - ⚙️ Modifications & upgrades inventory
 - 📊 Dashboard with interactive charts (mileage, efficiency, costs)
-- 🛠️ Maintenance reminders (oil changes, tire rotations)
+- 🛠️ Smart maintenance reminders (inspection, insurance renewal)
 - 📱 Responsive design for mobile/desktop
 
 ## Project Layout
@@ -52,8 +53,10 @@ STrack/
 │  │  │  ├─ dashboard/
 │  │  │  │  ├─ components/
 │  │  │  │  │  ├─ DashboardOverviewSection.vue
-│  │  │  │  │  └─ DashboardGarageSection.vue
+│  │  │  │  │  ├─ DashboardGarageSection.vue
+│  │  │  │  │  └─ ExpiryCard.vue
 │  │  │  │  ├─ charts.js
+│  │  │  │  ├─ expiryHelper.js
 │  │  │  │  ├─ formatters.js
 │  │  │  │  ├─ forms.js
 │  │  │  │  └─ reminders.js

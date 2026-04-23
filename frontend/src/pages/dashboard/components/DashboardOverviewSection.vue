@@ -39,7 +39,7 @@
       </article>
     </section>
 
-    <section class="work-grid-4 mt-4">
+    <section class="work-grid-3 mt-4">
       <article class="work-panel metric-panel compact-metric">
         <div class="work-panel-label">{{ t('dashboard.selectedPeriod') }}</div>
         <div class="work-panel-value small-value">{{ selectedPeriodLabel }}</div>
@@ -58,13 +58,19 @@
           {{ totalDistanceTracked ? `${totalDistanceTracked} km` : '—' }}
         </div>
       </article>
+    </section>
 
-      <article class="work-panel metric-panel compact-metric">
-        <div class="work-panel-label">{{ t('dashboard.resaleScore') }}</div>
-        <div class="work-panel-value small-value">
-          {{ selectedCar ? `${resaleScore}/100` : '—' }}
-        </div>
-      </article>
+    <section v-if="selectedCar" class="work-grid-2 mt-4">
+      <ExpiryCard
+        type="insurance"
+        :expiry-date="selectedCar.insurance_until"
+        @edit-expiry="emit('edit-expiry')"
+      />
+      <ExpiryCard
+        type="inspection"
+        :expiry-date="selectedCar.inspection_until"
+        @edit-expiry="emit('edit-expiry')"
+      />
     </section>
 
     <section class="work-panel mt-4">
@@ -131,24 +137,7 @@
       </article>
     </section>
 
-    <section class="work-grid-2 mt-4">
-      <article class="work-panel">
-        <div class="work-panel-head">
-          <h3 class="work-panel-title">{{ t('dashboard.smartReminders') }}</h3>
-        </div>
 
-        <div v-if="!smartReminders.length" class="empty-card">
-          {{ t('dashboard.selectedCarUpToDate') }}
-        </div>
-
-        <div v-else class="reminder-list">
-          <div v-for="item in smartReminders" :key="item.title" class="reminder-item">
-            <div class="reminder-title">{{ item.title }}</div>
-            <div class="work-item-sub">{{ item.message }}</div>
-          </div>
-        </div>
-      </article>
-    </section>
   </section>
 </template>
 
@@ -156,6 +145,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ChartWrapper from '../../../components/ChartWrapper.vue'
+import ExpiryCard from './ExpiryCard.vue'
 import { formatCurrency } from '../formatters'
 
 const selectedPeriod = defineModel('selectedPeriod', { type: String, default: 'all' })
@@ -190,10 +180,6 @@ defineProps({
     type: [Number, String],
     default: 0
   },
-  resaleScore: {
-    type: [Number, String],
-    default: 0
-  },
   fuelConsumptionChart: {
     type: Array,
     default: () => []
@@ -217,14 +203,10 @@ defineProps({
   stackedChartOptions: {
     type: Object,
     default: () => ({})
-  },
-  smartReminders: {
-    type: Array,
-    default: () => []
   }
 })
 
-const emit = defineEmits(['add-car', 'refresh'])
+const emit = defineEmits(['add-car', 'refresh', 'edit-expiry'])
 const { t } = useI18n()
 
 const periodOptions = computed(() => [
