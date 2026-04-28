@@ -79,6 +79,7 @@ const messages = {
       cars: 'Cars',
       fuelLogs: 'Fuel Logs',
       repairs: 'Repairs',
+      mods: 'Mods',
       totalSpend: 'Total Spend',
       selectedPeriod: 'Selected period',
       costPerKm: 'Cost per km',
@@ -196,8 +197,8 @@ const messages = {
           label: 'Remonti',
           value: 'Datumu filtrēšana servisa vēsturei'
         },
-        mods: {
-          label: 'Modifikācijas',
+          mods: {
+            label: 'Modifikacijas',
           value: 'Uzlabojumu žurnāls ar izmaksām un ietekmes piezīmēm'
         }
       }
@@ -241,6 +242,7 @@ const messages = {
       cars: 'Auto',
       fuelLogs: 'Degvielas ieraksti',
       repairs: 'Remonti',
+      mods: 'Modifikācijas',
       totalSpend: 'Kopējie tēriņi',
       selectedPeriod: 'Izvēlētais periods',
       costPerKm: 'Izmaksas uz km',
