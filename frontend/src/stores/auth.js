@@ -61,8 +61,7 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       try {
         await api.post('/auth/logout')
-      } catch (_) {
-      }
+      } catch (_) {}
 
       this.user = null
       this.token = null
@@ -139,7 +138,10 @@ export const useAuthStore = defineStore('auth', {
       this.pendingVerificationEmail = email || ''
 
       if (this.pendingVerificationEmail) {
-        localStorage.setItem('car_tracker_pending_verification_email', this.pendingVerificationEmail)
+        localStorage.setItem(
+          'car_tracker_pending_verification_email',
+          this.pendingVerificationEmail
+        )
       } else {
         localStorage.removeItem('car_tracker_pending_verification_email')
       }

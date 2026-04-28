@@ -61,8 +61,7 @@ export const useGarageStore = defineStore('garage', {
   }),
 
   getters: {
-    selectedCar: (state) =>
-      state.cars.find((car) => car.id === state.selectedCarId) || null,
+    selectedCar: (state) => state.cars.find((car) => car.id === state.selectedCarId) || null,
 
     latestFuelLog: (state) => state.fuelLogs[0] || null,
     latestRepair: (state) => state.repairs[0] || null,
@@ -225,10 +224,7 @@ export const useGarageStore = defineStore('garage', {
     },
 
     setError(error, fallbackMessage = 'Something went wrong') {
-      this.error =
-        error?.response?.data?.message ||
-        error?.message ||
-        fallbackMessage
+      this.error = error?.response?.data?.message || error?.message || fallbackMessage
     },
 
     setSelectedPeriod(period) {

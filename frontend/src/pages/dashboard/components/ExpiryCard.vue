@@ -9,12 +9,7 @@
     </div>
     <div class="expiry-date">{{ dateDisplay }}</div>
     <div class="expiry-message">{{ message }}</div>
-    <v-btn
-      class="expiry-edit-btn"
-      size="small"
-      variant="text"
-      @click="emit('edit-expiry')"
-    >
+    <v-btn class="expiry-edit-btn" size="small" variant="text" @click="emit('edit-expiry')">
       {{ t('dashboard.edit') }}
     </v-btn>
   </article>
@@ -69,10 +64,7 @@ const daysText = computed(() => {
 })
 
 const message = computed(() => {
-  return getExpiryMessage(
-    props.expiryDate,
-    title.value
-  )
+  return getExpiryMessage(props.expiryDate, title.value)
 })
 </script>
 

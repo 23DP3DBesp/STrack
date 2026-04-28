@@ -77,14 +77,18 @@ const form = ref({
   inspection_until: ''
 })
 
-watch(() => props.selectedCar, (newCar) => {
-  if (newCar) {
-    form.value = {
-      insurance_until: newCar.insurance_until || '',
-      inspection_until: newCar.inspection_until || ''
+watch(
+  () => props.selectedCar,
+  (newCar) => {
+    if (newCar) {
+      form.value = {
+        insurance_until: newCar.insurance_until || '',
+        inspection_until: newCar.inspection_until || ''
+      }
     }
-  }
-}, { immediate: true, deep: true })
+  },
+  { immediate: true, deep: true }
+)
 
 const submitForm = async () => {
   const validation = await expiryFormRef.value?.validate()

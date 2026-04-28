@@ -5,10 +5,13 @@ export const createDashboardRules = (t) => ({
     return (v) => (!!v && Number(v) > value) || `Must be greater than ${value}`
   },
   gte(value) {
-    return (v) => (v !== '' && v !== null && v !== undefined && Number(v) >= value) || `Must be at least ${value}`
+    return (v) =>
+      (v !== '' && v !== null && v !== undefined && Number(v) >= value) ||
+      `Must be at least ${value}`
   },
   integerMin(value) {
-    return (v) => (!!v && Number.isInteger(Number(v)) && Number(v) >= value) || `Must be integer >= ${value}`
+    return (v) =>
+      (!!v && Number.isInteger(Number(v)) && Number(v) >= value) || `Must be integer >= ${value}`
   },
   year: (v) => (!!v && Number(v) >= 1900 && Number(v) <= 2100) || 'Year between 1900-2100'
 })

@@ -2,9 +2,7 @@
   <div class="auth-page modern-auth">
     <header class="work-topbar">
       <div class="work-topbar-in">
-        <button class="work-brand" type="button" @click="goHome">
-          Car Tracker
-        </button>
+        <button class="work-brand" type="button" @click="goHome">Car Tracker</button>
 
         <nav class="work-links">
           <button class="work-link" type="button" @click="goHome">Home</button>
@@ -22,12 +20,7 @@
           <h1 class="work-title auth-modern-title">{{ t('auth.registerTitle') }}</h1>
           <p class="work-subtitle auth-modern-subtitle">{{ t('auth.create') }}</p>
 
-          <v-alert
-            v-if="auth.error"
-            type="error"
-            variant="tonal"
-            class="mt-4 mb-3"
-          >
+          <v-alert v-if="auth.error" type="error" variant="tonal" class="mt-4 mb-3">
             {{ auth.error }}
           </v-alert>
 
@@ -62,27 +55,19 @@
               :label="t('auth.passwordConfirm')"
               :type="showPasswordConfirmation ? 'text' : 'password'"
               autocomplete="new-password"
-              :append-inner-icon="showPasswordConfirmation ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              :append-inner-icon="
+                showPasswordConfirmation ? 'mdi-eye-off-outline' : 'mdi-eye-outline'
+              "
               @click:append-inner="showPasswordConfirmation = !showPasswordConfirmation"
               required
             />
 
             <div class="auth-actions-row">
-              <v-btn
-                type="submit"
-                class="ui-btn-primary auth-submit-btn"
-                :loading="auth.loading"
-              >
+              <v-btn type="submit" class="ui-btn-primary auth-submit-btn" :loading="auth.loading">
                 {{ t('auth.signUp') }}
               </v-btn>
 
-              <v-btn
-                class="ui-btn-secondary"
-                variant="text"
-                @click="goLogin"
-              >
-                Login
-              </v-btn>
+              <v-btn class="ui-btn-secondary" variant="text" @click="goLogin"> Login </v-btn>
             </div>
           </v-form>
         </section>
@@ -132,7 +117,6 @@ const submit = async () => {
         emailSent: response?.verification_email_sent ? '1' : '0'
       }
     })
-  } catch (_) {
-  }
+  } catch (_) {}
 }
 </script>

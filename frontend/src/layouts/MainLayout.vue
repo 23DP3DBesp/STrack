@@ -2,9 +2,7 @@
   <v-app class="workspace-root">
     <header class="work-topbar">
       <div class="work-topbar-in">
-        <button class="work-brand" type="button" @click="goDashboard">
-          Car Tracker
-        </button>
+        <button class="work-brand" type="button" @click="goDashboard">Car Tracker</button>
 
         <nav class="work-links">
           <button class="work-link" type="button" @click="goDashboard">
@@ -89,8 +87,7 @@ const changeLocale = async (nextLocale) => {
         currency: auth.user.currency || 'EUR',
         distance_unit: auth.user.distance_unit || 'km'
       })
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 }
 

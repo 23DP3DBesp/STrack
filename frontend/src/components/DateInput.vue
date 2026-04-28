@@ -1,9 +1,5 @@
 ﻿<template>
-  <v-menu
-    v-model="open"
-    :close-on-content-click="false"
-    location="bottom start"
-  >
+  <v-menu v-model="open" :close-on-content-click="false" location="bottom start">
     <template #activator="{ props: activatorProps }">
       <v-text-field
         v-bind="activatorProps"
@@ -48,20 +44,9 @@
       />
 
       <div class="date-menu-actions">
-        <v-btn
-          class="ui-btn-secondary compact"
-          variant="text"
-          @click="clearValue"
-        >
-          Clear
-        </v-btn>
+        <v-btn class="ui-btn-secondary compact" variant="text" @click="clearValue"> Clear </v-btn>
 
-        <v-btn
-          class="ui-btn-primary compact"
-          @click="open = false"
-        >
-          Done
-        </v-btn>
+        <v-btn class="ui-btn-primary compact" @click="open = false"> Done </v-btn>
       </div>
     </v-card>
   </v-menu>

@@ -45,98 +45,222 @@
 
     <v-dialog v-model="carDialog" max-width="620">
       <v-card class="dialog-card">
-        <h3 class="work-panel-title mb-4">{{ carForm.id ? t('dashboard.editCar') : t('dashboard.addCar') }}</h3>
+        <h3 class="work-panel-title mb-4">
+          {{ carForm.id ? t('dashboard.editCar') : t('dashboard.addCar') }}
+        </h3>
 
         <v-form id="carForm" ref="carFormRef" @submit.prevent="submitCar">
           <div class="dialog-grid">
-            <v-text-field v-model="carForm.brand" :label="t('dashboard.brand')" :rules="[rules.required]" />
-            <v-text-field v-model="carForm.model" :label="t('dashboard.model')" :rules="[rules.required]" />
-            <v-text-field v-model="carForm.year" :label="t('dashboard.year')" type="number" :rules="[rules.required, rules.year]" />
-            <v-text-field v-model="carForm.engine_volume" :label="t('dashboard.engineVolume')" type="number" step="0.1" :rules="[rules.required, rules.gt(0)]" />
+            <v-text-field
+              v-model="carForm.brand"
+              :label="t('dashboard.brand')"
+              :rules="[rules.required]"
+            />
+            <v-text-field
+              v-model="carForm.model"
+              :label="t('dashboard.model')"
+              :rules="[rules.required]"
+            />
+            <v-text-field
+              v-model="carForm.year"
+              :label="t('dashboard.year')"
+              type="number"
+              :rules="[rules.required, rules.year]"
+            />
+            <v-text-field
+              v-model="carForm.engine_volume"
+              :label="t('dashboard.engineVolume')"
+              type="number"
+              step="0.1"
+              :rules="[rules.required, rules.gt(0)]"
+            />
             <v-text-field
               v-model="carForm.license_plate"
               :label="t('dashboard.licensePlate')"
               :rules="[rules.required]"
-              @update:model-value="(v) => carForm.license_plate = String(v || '').toUpperCase()"
+              @update:model-value="(v) => (carForm.license_plate = String(v || '').toUpperCase())"
             />
-            <DateInput v-model="carForm.insurance_until" :label="t('dashboard.insuranceUntil')" :placeholder="t('dashboard.selectInsuranceExpiry')" />
-            <DateInput v-model="carForm.inspection_until" :label="t('dashboard.inspectionUntil')" :placeholder="t('dashboard.selectInspectionExpiry')" />
+            <DateInput
+              v-model="carForm.insurance_until"
+              :label="t('dashboard.insuranceUntil')"
+              :placeholder="t('dashboard.selectInsuranceExpiry')"
+            />
+            <DateInput
+              v-model="carForm.inspection_until"
+              :label="t('dashboard.inspectionUntil')"
+              :placeholder="t('dashboard.selectInspectionExpiry')"
+            />
           </div>
         </v-form>
 
         <div class="dialog-actions">
-          <v-btn class="ui-btn-secondary" variant="text" @click="carDialog = false">{{ t('dashboard.cancel') }}</v-btn>
-          <v-btn class="ui-btn-primary" :loading="savingCar" type="submit" form="carForm">{{ t('dashboard.save') }}</v-btn>
+          <v-btn class="ui-btn-secondary" variant="text" @click="carDialog = false">{{
+            t('dashboard.cancel')
+          }}</v-btn>
+          <v-btn class="ui-btn-primary" :loading="savingCar" type="submit" form="carForm">{{
+            t('dashboard.save')
+          }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="fuelDialog" max-width="620">
       <v-card class="dialog-card">
-        <h3 class="work-panel-title mb-4">{{ fuelForm.id ? t('dashboard.editFuelLog') : t('dashboard.addFuelLog') }}</h3>
+        <h3 class="work-panel-title mb-4">
+          {{ fuelForm.id ? t('dashboard.editFuelLog') : t('dashboard.addFuelLog') }}
+        </h3>
 
         <v-form id="fuelForm" ref="fuelFormRef" @submit.prevent="submitFuelLog">
           <div v-if="saveError" class="form-error">{{ saveError }}</div>
 
           <div class="dialog-grid">
-            <DateInput v-model="fuelForm.date" :label="t('dashboard.date')" :placeholder="t('dashboard.selectFuelingDate')" :rules="[rules.requiredDate]" />
-            <v-text-field v-model="fuelForm.liters" :label="t('dashboard.liters')" type="number" step="0.01" :rules="[rules.required, rules.gt(0)]" />
-            <v-text-field v-model="fuelForm.total_price" :label="t('dashboard.total')" type="number" step="0.01" :rules="[rules.required, rules.gte(0)]" />
-            <v-text-field :model-value="fuelPricePerLiter" :label="t('dashboard.pricePerLiter')" readonly suffix="€/L" />
-            <v-text-field v-model="fuelForm.mileage" :label="t('dashboard.mileage')" type="number" :rules="[rules.required, rules.integerMin(0)]" />
+            <DateInput
+              v-model="fuelForm.date"
+              :label="t('dashboard.date')"
+              :placeholder="t('dashboard.selectFuelingDate')"
+              :rules="[rules.requiredDate]"
+            />
+            <v-text-field
+              v-model="fuelForm.liters"
+              :label="t('dashboard.liters')"
+              type="number"
+              step="0.01"
+              :rules="[rules.required, rules.gt(0)]"
+            />
+            <v-text-field
+              v-model="fuelForm.total_price"
+              :label="t('dashboard.total')"
+              type="number"
+              step="0.01"
+              :rules="[rules.required, rules.gte(0)]"
+            />
+            <v-text-field
+              :model-value="fuelPricePerLiter"
+              :label="t('dashboard.pricePerLiter')"
+              readonly
+              suffix="€/L"
+            />
+            <v-text-field
+              v-model="fuelForm.mileage"
+              :label="t('dashboard.mileage')"
+              type="number"
+              :rules="[rules.required, rules.integerMin(0)]"
+            />
           </div>
 
           <div class="dialog-note">{{ t('dashboard.fuelConsumptionCalculated') }}</div>
         </v-form>
 
         <div class="dialog-actions">
-          <v-btn class="ui-btn-secondary" variant="text" @click="fuelDialog = false">{{ t('dashboard.cancel') }}</v-btn>
-          <v-btn class="ui-btn-primary" :loading="savingFuel" type="submit" form="fuelForm">{{ t('dashboard.save') }}</v-btn>
+          <v-btn class="ui-btn-secondary" variant="text" @click="fuelDialog = false">{{
+            t('dashboard.cancel')
+          }}</v-btn>
+          <v-btn class="ui-btn-primary" :loading="savingFuel" type="submit" form="fuelForm">{{
+            t('dashboard.save')
+          }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="repairDialog" max-width="620">
       <v-card class="dialog-card">
-        <h3 class="work-panel-title mb-4">{{ repairForm.id ? t('dashboard.editRepair') : t('dashboard.addRepair') }}</h3>
+        <h3 class="work-panel-title mb-4">
+          {{ repairForm.id ? t('dashboard.editRepair') : t('dashboard.addRepair') }}
+        </h3>
 
         <v-form id="repairForm" ref="repairFormRef" @submit.prevent="submitRepair">
           <div v-if="saveError" class="form-error">{{ saveError }}</div>
 
           <div class="dialog-grid">
-            <DateInput v-model="repairForm.date" :label="t('dashboard.date')" :placeholder="t('dashboard.selectRepairDate')" :rules="[rules.requiredDate]" />
-            <v-text-field v-model="repairForm.type" :label="t('dashboard.type')" :rules="[rules.required]" />
-            <v-text-field v-model="repairForm.cost" :label="t('dashboard.cost')" type="number" step="0.01" :rules="[rules.required, rules.gte(0)]" />
-            <v-text-field v-model="repairForm.mileage" :label="t('dashboard.mileage')" type="number" :rules="[rules.required, rules.integerMin(0)]" />
-            <v-textarea v-model="repairForm.description" :label="t('dashboard.description')" rows="3" class="span-2" />
+            <DateInput
+              v-model="repairForm.date"
+              :label="t('dashboard.date')"
+              :placeholder="t('dashboard.selectRepairDate')"
+              :rules="[rules.requiredDate]"
+            />
+            <v-text-field
+              v-model="repairForm.type"
+              :label="t('dashboard.type')"
+              :rules="[rules.required]"
+            />
+            <v-text-field
+              v-model="repairForm.cost"
+              :label="t('dashboard.cost')"
+              type="number"
+              step="0.01"
+              :rules="[rules.required, rules.gte(0)]"
+            />
+            <v-text-field
+              v-model="repairForm.mileage"
+              :label="t('dashboard.mileage')"
+              type="number"
+              :rules="[rules.required, rules.integerMin(0)]"
+            />
+            <v-textarea
+              v-model="repairForm.description"
+              :label="t('dashboard.description')"
+              rows="3"
+              class="span-2"
+            />
           </div>
         </v-form>
 
         <div class="dialog-actions">
-          <v-btn class="ui-btn-secondary" variant="text" @click="repairDialog = false">{{ t('dashboard.cancel') }}</v-btn>
-          <v-btn class="ui-btn-primary" :loading="savingRepair" type="submit" form="repairForm">{{ t('dashboard.save') }}</v-btn>
+          <v-btn class="ui-btn-secondary" variant="text" @click="repairDialog = false">{{
+            t('dashboard.cancel')
+          }}</v-btn>
+          <v-btn class="ui-btn-primary" :loading="savingRepair" type="submit" form="repairForm">{{
+            t('dashboard.save')
+          }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="modDialog" max-width="620">
       <v-card class="dialog-card">
-        <h3 class="work-panel-title mb-4">{{ modForm.id ? t('dashboard.editMod') : t('dashboard.addMod') }}</h3>
+        <h3 class="work-panel-title mb-4">
+          {{ modForm.id ? t('dashboard.editMod') : t('dashboard.addMod') }}
+        </h3>
 
         <v-form id="modForm" ref="modFormRef" @submit.prevent="submitMod">
           <div v-if="saveError" class="form-error">{{ saveError }}</div>
 
           <div class="dialog-grid">
-            <DateInput v-model="modForm.date_installed" :label="t('dashboard.dateInstall')" :placeholder="t('dashboard.selectInstallDate')" :rules="[rules.requiredDate]" />
-            <v-text-field v-model="modForm.name" :label="t('dashboard.name')" :rules="[rules.required]" />
-            <v-text-field v-model="modForm.cost" :label="t('dashboard.cost')" type="number" step="0.01" :rules="[rules.required, rules.gte(0)]" />
-            <v-textarea v-model="modForm.performance_impact" :label="t('dashboard.performanceImpact')" rows="3" class="span-2" :rules="[rules.required]" />
+            <DateInput
+              v-model="modForm.date_installed"
+              :label="t('dashboard.dateInstall')"
+              :placeholder="t('dashboard.selectInstallDate')"
+              :rules="[rules.requiredDate]"
+            />
+            <v-text-field
+              v-model="modForm.name"
+              :label="t('dashboard.name')"
+              :rules="[rules.required]"
+            />
+            <v-text-field
+              v-model="modForm.cost"
+              :label="t('dashboard.cost')"
+              type="number"
+              step="0.01"
+              :rules="[rules.required, rules.gte(0)]"
+            />
+            <v-textarea
+              v-model="modForm.performance_impact"
+              :label="t('dashboard.performanceImpact')"
+              rows="3"
+              class="span-2"
+              :rules="[rules.required]"
+            />
           </div>
         </v-form>
 
         <div class="dialog-actions">
-          <v-btn class="ui-btn-secondary" variant="text" @click="modDialog = false">{{ t('dashboard.cancel') }}</v-btn>
-          <v-btn class="ui-btn-primary" :loading="savingMod" type="submit" form="modForm">{{ t('dashboard.save') }}</v-btn>
+          <v-btn class="ui-btn-secondary" variant="text" @click="modDialog = false">{{
+            t('dashboard.cancel')
+          }}</v-btn>
+          <v-btn class="ui-btn-primary" :loading="savingMod" type="submit" form="modForm">{{
+            t('dashboard.save')
+          }}</v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -161,18 +285,24 @@
       </v-card>
     </v-dialog>
 
-    <ExpiryEditDialog
-      v-model="expiryDialog"
-      :selected-car="selectedCar"
-      @save="onSaveExpiry"
-    />
+    <ExpiryEditDialog v-model="expiryDialog" :selected-car="selectedCar" @save="onSaveExpiry" />
   </MainLayout>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js'
 import MainLayout from '../layouts/MainLayout.vue'
 import DateInput from '../components/DateInput.vue'
 import { useAuthStore } from '../stores/auth'
@@ -187,11 +317,26 @@ import {
   buildMonthlyExpenseData,
   buildStackedChartOptions
 } from './dashboard/charts'
-import { createDashboardRules, emptyCarForm, emptyFuelForm, emptyRepairForm, emptyModForm } from './dashboard/forms'
+import {
+  createDashboardRules,
+  emptyCarForm,
+  emptyFuelForm,
+  emptyRepairForm,
+  emptyModForm
+} from './dashboard/forms'
 import { formatCurrency } from './dashboard/formatters'
 import { getDefaultExpiryDate } from './dashboard/expiryHelper'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 const auth = useAuthStore()
 const garage = useGarageStore()
@@ -474,5 +619,4 @@ const resetRepairFilters = async () => {
   repairFilters.value = { date_from: '', date_to: '' }
   await garage.fetchRepairs(repairFilters.value)
 }
-
 </script>

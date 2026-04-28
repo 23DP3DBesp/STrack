@@ -36,14 +36,12 @@
           class="garage-car-item-wrap"
           :class="{ active: garage.selectedCarId === car.id }"
         >
-          <button
-            type="button"
-            class="garage-car-item-main"
-            @click="emit('select-car', car.id)"
-          >
+          <button type="button" class="garage-car-item-main" @click="emit('select-car', car.id)">
             <div class="garage-car-meta">
               <div class="work-item-title">{{ car.brand }} {{ car.model }}</div>
-              <div class="work-item-sub">{{ car.year }} · {{ car.engine_volume }}L · {{ car.license_plate }}</div>
+              <div class="work-item-sub">
+                {{ car.year }} · {{ car.engine_volume }}L · {{ car.license_plate }}
+              </div>
             </div>
 
             <div class="car-item-metrics">
@@ -81,14 +79,26 @@
       <div v-if="selectedCar" class="work-panel-head align-start">
         <div>
           <div class="work-panel-title">{{ selectedCar.brand }} {{ selectedCar.model }}</div>
-          <div class="work-item-sub">{{ selectedCar.year }} · {{ selectedCar.engine_volume }}L · {{ selectedCar.license_plate }}</div>
+          <div class="work-item-sub">
+            {{ selectedCar.year }} · {{ selectedCar.engine_volume }}L ·
+            {{ selectedCar.license_plate }}
+          </div>
         </div>
 
         <div class="toolbar-actions top-actions">
-          <v-btn class="ui-btn-secondary compact" variant="outlined" @click="emit('edit-car', selectedCar)">
+          <v-btn
+            class="ui-btn-secondary compact"
+            variant="outlined"
+            @click="emit('edit-car', selectedCar)"
+          >
             {{ t('dashboard.edit') }}
           </v-btn>
-          <v-btn class="ui-btn-secondary compact" color="error" variant="outlined" @click="emit('remove-car', selectedCar)">
+          <v-btn
+            class="ui-btn-secondary compact"
+            color="error"
+            variant="outlined"
+            @click="emit('remove-car', selectedCar)"
+          >
             {{ t('dashboard.delete') }}
           </v-btn>
         </div>
@@ -113,10 +123,18 @@
               />
 
               <div class="filter-actions">
-                <v-btn class="ui-btn-secondary compact" variant="outlined" @click="emit('apply-fuel-filters')">
+                <v-btn
+                  class="ui-btn-secondary compact"
+                  variant="outlined"
+                  @click="emit('apply-fuel-filters')"
+                >
                   {{ t('dashboard.apply') }}
                 </v-btn>
-                <v-btn class="ui-btn-secondary compact" variant="text" @click="emit('reset-fuel-filters')">
+                <v-btn
+                  class="ui-btn-secondary compact"
+                  variant="text"
+                  @click="emit('reset-fuel-filters')"
+                >
                   {{ t('dashboard.reset') }}
                 </v-btn>
                 <v-btn class="ui-btn-primary compact" @click="emit('open-fuel-dialog')">
@@ -145,10 +163,28 @@
                     <td>{{ formatCurrency(item.total_price) }}</td>
                     <td>{{ item.price_per_liter }}</td>
                     <td>{{ item.mileage }} km</td>
-                    <td>{{ item.fuel_consumption ? `${item.fuel_consumption} L/100km` : t('dashboard.pendingNextLog') }}</td>
+                    <td>
+                      {{
+                        item.fuel_consumption
+                          ? `${item.fuel_consumption} L/100km`
+                          : t('dashboard.pendingNextLog')
+                      }}
+                    </td>
                     <td class="actions-col">
-                      <button class="table-action" type="button" @click="emit('open-fuel-dialog', item)">{{ t('dashboard.edit') }}</button>
-                      <button class="table-action danger" type="button" @click="emit('remove-fuel-log', item)">{{ t('dashboard.delete') }}</button>
+                      <button
+                        class="table-action"
+                        type="button"
+                        @click="emit('open-fuel-dialog', item)"
+                      >
+                        {{ t('dashboard.edit') }}
+                      </button>
+                      <button
+                        class="table-action danger"
+                        type="button"
+                        @click="emit('remove-fuel-log', item)"
+                      >
+                        {{ t('dashboard.delete') }}
+                      </button>
                     </td>
                   </tr>
                 </tbody>
@@ -165,10 +201,18 @@
               />
 
               <div class="filter-actions">
-                <v-btn class="ui-btn-secondary compact" variant="outlined" @click="emit('apply-repair-filters')">
+                <v-btn
+                  class="ui-btn-secondary compact"
+                  variant="outlined"
+                  @click="emit('apply-repair-filters')"
+                >
                   {{ t('dashboard.apply') }}
                 </v-btn>
-                <v-btn class="ui-btn-secondary compact" variant="text" @click="emit('reset-repair-filters')">
+                <v-btn
+                  class="ui-btn-secondary compact"
+                  variant="text"
+                  @click="emit('reset-repair-filters')"
+                >
                   {{ t('dashboard.reset') }}
                 </v-btn>
                 <v-btn class="ui-btn-primary compact" @click="emit('open-repair-dialog')">
@@ -197,8 +241,20 @@
                     <td>{{ item.mileage }} km</td>
                     <td>{{ item.description || '—' }}</td>
                     <td class="actions-col">
-                      <button class="table-action" type="button" @click="emit('open-repair-dialog', item)">{{ t('dashboard.edit') }}</button>
-                      <button class="table-action danger" type="button" @click="emit('remove-repair', item)">{{ t('dashboard.delete') }}</button>
+                      <button
+                        class="table-action"
+                        type="button"
+                        @click="emit('open-repair-dialog', item)"
+                      >
+                        {{ t('dashboard.edit') }}
+                      </button>
+                      <button
+                        class="table-action danger"
+                        type="button"
+                        @click="emit('remove-repair', item)"
+                      >
+                        {{ t('dashboard.delete') }}
+                      </button>
                     </td>
                   </tr>
                 </tbody>
@@ -232,8 +288,20 @@
                     <td>{{ formatCurrency(item.cost) }}</td>
                     <td>{{ item.performance_impact }}</td>
                     <td class="actions-col">
-                      <button class="table-action" type="button" @click="emit('open-mod-dialog', item)">{{ t('dashboard.edit') }}</button>
-                      <button class="table-action danger" type="button" @click="emit('remove-mod', item)">{{ t('dashboard.delete') }}</button>
+                      <button
+                        class="table-action"
+                        type="button"
+                        @click="emit('open-mod-dialog', item)"
+                      >
+                        {{ t('dashboard.edit') }}
+                      </button>
+                      <button
+                        class="table-action danger"
+                        type="button"
+                        @click="emit('remove-mod', item)"
+                      >
+                        {{ t('dashboard.delete') }}
+                      </button>
                     </td>
                   </tr>
                 </tbody>

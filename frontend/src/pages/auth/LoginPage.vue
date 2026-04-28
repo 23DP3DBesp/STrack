@@ -2,9 +2,7 @@
   <div class="auth-page modern-auth">
     <header class="work-topbar">
       <div class="work-topbar-in">
-        <button class="work-brand" type="button" @click="goHome">
-          Car Tracker
-        </button>
+        <button class="work-brand" type="button" @click="goHome">Car Tracker</button>
 
         <nav class="work-links">
           <button class="work-link" type="button" @click="goHome">Home</button>
@@ -22,12 +20,7 @@
           <h1 class="work-title auth-modern-title">{{ t('auth.loginTitle') }}</h1>
           <p class="work-subtitle auth-modern-subtitle">{{ t('auth.continue') }}</p>
 
-          <v-alert
-            v-if="auth.error"
-            type="error"
-            variant="tonal"
-            class="mt-4 mb-3"
-          >
+          <v-alert v-if="auth.error" type="error" variant="tonal" class="mt-4 mb-3">
             {{ auth.error }}
           </v-alert>
 
@@ -50,27 +43,14 @@
             />
 
             <div class="auth-actions-row">
-              <v-btn
-                type="submit"
-                class="ui-btn-primary auth-submit-btn"
-                :loading="auth.loading"
-              >
+              <v-btn type="submit" class="ui-btn-primary auth-submit-btn" :loading="auth.loading">
                 {{ t('auth.signIn') }}
               </v-btn>
 
-              <v-btn
-                class="ui-btn-secondary"
-                variant="text"
-                @click="goRegister"
-              >
-                Register
-              </v-btn>
+              <v-btn class="ui-btn-secondary" variant="text" @click="goRegister"> Register </v-btn>
             </div>
 
-            <div
-              v-if="auth.error === t('auth.verifyFirst')"
-              class="auth-inline-note"
-            >
+            <div v-if="auth.error === t('auth.verifyFirst')" class="auth-inline-note">
               <span>{{ t('auth.needVerificationHint') }}</span>
               <button type="button" class="auth-inline-link" @click="resendVerification">
                 {{ t('auth.resendVerification') }}
@@ -115,8 +95,7 @@ const resendVerification = async () => {
         login: login.value
       }
     })
-  } catch (_) {
-  }
+  } catch (_) {}
 }
 
 const submit = async () => {
@@ -128,7 +107,6 @@ const submit = async () => {
     })
 
     router.push({ name: 'dashboard' })
-  } catch (_) {
-  }
+  } catch (_) {}
 }
 </script>

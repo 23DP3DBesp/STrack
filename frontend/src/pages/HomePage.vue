@@ -2,9 +2,7 @@
   <div class="landing-page">
     <header class="work-topbar landing-topbar">
       <div class="work-topbar-in">
-        <button class="work-brand" type="button" @click="goHome">
-          Car Tracker
-        </button>
+        <button class="work-brand" type="button" @click="goHome">Car Tracker</button>
 
         <nav class="work-links">
           <button class="work-link" type="button" @click="goLogin">

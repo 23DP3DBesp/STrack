@@ -19,7 +19,8 @@
   --db-shadow-sm: 0 6px 16px rgba(24, 18, 8, 0.07);
   --db-shadow-md: 0 18px 42px rgba(24, 18, 8, 0.11);
   --db-shadow-lg: 0 28px 72px rgba(24, 18, 8, 0.18);
-  --db-font-sans: 'SF Pro Text', 'Inter', 'Avenir Next', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --db-font-sans:
+    'SF Pro Text', 'Inter', 'Avenir Next', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 *,
@@ -161,7 +162,9 @@ button {
   color: var(--db-text);
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .work-link:hover,
@@ -274,7 +277,10 @@ button {
   border-radius: var(--db-radius-lg);
   background: var(--db-surface);
   box-shadow: var(--db-shadow-sm);
-  transition: box-shadow 0.28s ease, transform 0.28s ease, border-color 0.28s ease;
+  transition:
+    box-shadow 0.28s ease,
+    transform 0.28s ease,
+    border-color 0.28s ease;
 }
 
 .work-page-shell {
@@ -514,7 +520,10 @@ button {
   border-radius: var(--db-radius-md);
   background: #fff;
   text-align: left;
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
 }
 
 .compare-item.active {
@@ -540,7 +549,10 @@ button {
   border-radius: var(--db-radius-md);
   background: #fff;
   padding: 16px;
-  transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+  transition:
+    border-color 0.24s ease,
+    box-shadow 0.24s ease,
+    transform 0.24s ease;
 }
 
 .garage-car-item-wrap.active {
@@ -610,7 +622,9 @@ button {
   border: 1px solid var(--db-border);
   border-radius: var(--db-radius-md);
   background: #fff;
-  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .snapshot-item {
@@ -645,7 +659,10 @@ button {
   padding: 10px 16px;
   font-size: 13px;
   font-weight: 700;
-  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .period-chip.active {
@@ -716,7 +733,10 @@ button {
   padding: 4px 10px;
   font-weight: 700;
   font-size: 12px;
-  transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .table-action.danger {

@@ -3,9 +3,7 @@
     <section class="work-hero-card">
       <div class="work-kicker">Profile settings</div>
       <h1 class="work-title">Manage your account</h1>
-      <p class="work-subtitle">
-        Update personal details, preferences, and security settings.
-      </p>
+      <p class="work-subtitle">Update personal details, preferences, and security settings.</p>
     </section>
 
     <section class="profile-shell">
@@ -15,15 +13,8 @@
           <v-card-text>
             <div v-if="profileError" class="form-error">{{ profileError }}</div>
 
-            <v-text-field
-              v-model="form.login"
-              label="Login"
-              :rules="[rules.required]"
-            />
-            <v-text-field
-              v-model="form.display_name"
-              label="Display name"
-            />
+            <v-text-field v-model="form.login" label="Login" :rules="[rules.required]" />
+            <v-text-field v-model="form.display_name" label="Display name" />
           </v-card-text>
         </v-card>
 
@@ -36,16 +27,8 @@
               :items="languages"
               @update:model-value="handleLocaleChange"
             />
-            <v-select
-              v-model="form.currency"
-              label="Currency"
-              :items="currencies"
-            />
-            <v-select
-              v-model="form.distance_unit"
-              label="Distance unit"
-              :items="distances"
-            />
+            <v-select v-model="form.currency" label="Currency" :items="currencies" />
+            <v-select v-model="form.distance_unit" label="Distance unit" :items="distances" />
 
             <div class="profile-preview">
               <strong>Preview</strong>
@@ -81,7 +64,12 @@
                 :rules="[rules.required, rules.confirmPassword]"
               />
 
-              <v-btn class="ui-btn-secondary profile-block-btn" type="submit" variant="outlined" block>
+              <v-btn
+                class="ui-btn-secondary profile-block-btn"
+                type="submit"
+                variant="outlined"
+                block
+              >
                 Update password
               </v-btn>
             </v-form>
@@ -91,9 +79,7 @@
         <v-card class="profile-card mt-4 danger-zone">
           <v-card-title>Delete account</v-card-title>
           <v-card-text>
-            <p class="work-item-sub">
-              This permanently deletes your account and all garage data.
-            </p>
+            <p class="work-item-sub">This permanently deletes your account and all garage data.</p>
 
             <div v-if="deleteError" class="form-error">{{ deleteError }}</div>
 
@@ -117,9 +103,7 @@
       </v-form>
     </section>
 
-    <v-snackbar v-model="showSaved" color="success" timeout="3000">
-      Profile updated
-    </v-snackbar>
+    <v-snackbar v-model="showSaved" color="success" timeout="3000"> Profile updated </v-snackbar>
 
     <v-snackbar v-model="showPassword" color="success" timeout="3000">
       Password updated
@@ -150,7 +134,7 @@ const deleteError = ref('')
 const form = reactive({
   login: '',
   display_name: '',
-  locale: 'en',
+  locale: 'lv',
   theme: 'light',
   currency: 'EUR',
   distance_unit: 'km'
@@ -167,8 +151,8 @@ const deleteForm = reactive({
 })
 
 const languages = [
-  { title: 'English', value: 'en' },
-  { title: 'Latviešu', value: 'lv' }
+  { title: 'Latviešu', value: 'lv' },
+  { title: 'English', value: 'en' }
 ]
 
 const currencies = [
@@ -191,7 +175,7 @@ const rules = {
 onMounted(() => {
   form.login = auth.user?.login || ''
   form.display_name = auth.user?.display_name || ''
-  form.locale = auth.user?.locale || 'en'
+  form.locale = auth.user?.locale || 'lv'
   form.theme = auth.user?.theme || 'light'
   form.currency = auth.user?.currency || 'EUR'
   form.distance_unit = auth.user?.distance_unit || 'km'
@@ -216,9 +200,7 @@ const submitProfile = async () => {
     showSaved.value = true
   } catch (error) {
     profileError.value =
-      error?.response?.data?.message ||
-      auth.extractError(error) ||
-      'Failed to update profile'
+      error?.response?.data?.message || auth.extractError(error) || 'Failed to update profile'
   } finally {
     savingProfile.value = false
   }
@@ -244,9 +226,7 @@ const submitPasswordChange = async () => {
     showPassword.value = true
   } catch (error) {
     passwordError.value =
-      error?.response?.data?.message ||
-      auth.extractError(error) ||
-      'Failed to update password'
+      error?.response?.data?.message || auth.extractError(error) || 'Failed to update password'
   }
 }
 
@@ -267,9 +247,7 @@ const deleteAccount = async () => {
     router.push({ name: 'home' })
   } catch (error) {
     deleteError.value =
-      error?.response?.data?.message ||
-      auth.extractError(error) ||
-      'Failed to delete account'
+      error?.response?.data?.message || auth.extractError(error) || 'Failed to delete account'
   }
 }
 </script>

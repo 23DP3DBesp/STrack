@@ -50,54 +50,20 @@ class DashboardController extends Controller
         $monthly = [];
 
         foreach ($fuelLogs as $item) {
-            $month = substr((string) $item->date, 0, 7);
-
-            if (!isset($monthly[$month])) {
-                $monthly[$month] = [
-                    'month' => $month,
-                    'fuel' => 0,
-                    'repairs' => 0,
-                    'mods' => 0,
-                    'total' => 0,
-                ];
-            }
-
-            $monthly[$month]['fuel'] += (float) $item->total_price;
-            $monthly[$month]['total'] += (float) $item->total_price;
+            $this->addMonthlyAmount($monthly, substr((string) $item->date, 0, 7), 'fuel', (float) $item->total_price);
         }
 
         foreach ($repairs as $item) {
-            $month = substr((string) $item->date, 0, 7);
-
-            if (!isset($monthly[$month])) {
-                $monthly[$month] = [
-                    'month' => $month,
-                    'fuel' => 0,
-                    'repairs' => 0,
-                    'mods' => 0,
-                    'total' => 0,
-                ];
-            }
-
-            $monthly[$month]['repairs'] += (float) $item->cost;
-            $monthly[$month]['total'] += (float) $item->cost;
+            $this->addMonthlyAmount($monthly, substr((string) $item->date, 0, 7), 'repairs', (float) $item->cost);
         }
 
         foreach ($mods as $item) {
-            $month = substr((string) $item->date_installed, 0, 7);
-
-            if (!isset($monthly[$month])) {
-                $monthly[$month] = [
-                    'month' => $month,
-                    'fuel' => 0,
-                    'repairs' => 0,
-                    'mods' => 0,
-                    'total' => 0,
-                ];
-            }
-
-            $monthly[$month]['mods'] += (float) $item->cost;
-            $monthly[$month]['total'] += (float) $item->cost;
+            $this->addMonthlyAmount(
+                $monthly,
+                substr((string) $item->date_installed, 0, 7),
+                'mods',
+                (float) $item->cost
+            );
         }
 
         ksort($monthly);
@@ -112,17 +78,9 @@ class DashboardController extends Controller
             ];
         }, array_values($monthly));
 
-        $currentMonthFuel = round((float) $fuelLogs
-            ->filter(fn ($item) => substr((string) $item->date, 0, 7) === $currentMonth)
-            ->sum(fn ($item) => (float) $item->total_price), 2);
-
-        $currentMonthRepairs = round((float) $repairs
-            ->filter(fn ($item) => substr((string) $item->date, 0, 7) === $currentMonth)
-            ->sum(fn ($item) => (float) $item->cost), 2);
-
-        $currentMonthMods = round((float) $mods
-            ->filter(fn ($item) => substr((string) $item->date_installed, 0, 7) === $currentMonth)
-            ->sum(fn ($item) => (float) $item->cost), 2);
+        $currentMonthFuel = $this->sumCurrentMonth($fuelLogs, $currentMonth, 'date', 'total_price');
+        $currentMonthRepairs = $this->sumCurrentMonth($repairs, $currentMonth, 'date', 'cost');
+        $currentMonthMods = $this->sumCurrentMonth($mods, $currentMonth, 'date_installed', 'cost');
 
         $upcomingCosts = class_exists(RecurringCost::class)
             ? RecurringCost::query()
@@ -158,5 +116,36 @@ class DashboardController extends Controller
             'recent_mods' => $mods->take(5)->values(),
             'upcoming_costs' => $upcomingCosts,
         ]);
+    }
+
+    private function addMonthlyAmount(array &$monthly, string $month, string $field, float $amount): void
+    {
+        $monthly[$month] ??= $this->newMonthlyBucket($month);
+        $monthly[$month][$field] += $amount;
+        $monthly[$month]['total'] += $amount;
+    }
+
+    private function newMonthlyBucket(string $month): array
+    {
+        return [
+            'month' => $month,
+            'fuel' => 0,
+            'repairs' => 0,
+            'mods' => 0,
+            'total' => 0,
+        ];
+    }
+
+    private function sumCurrentMonth(iterable $items, string $currentMonth, string $dateField, string $amountField): float
+    {
+        $total = 0;
+
+        foreach ($items as $item) {
+            if (substr((string) data_get($item, $dateField), 0, 7) === $currentMonth) {
+                $total += (float) data_get($item, $amountField);
+            }
+        }
+
+        return round($total, 2);
     }
 }

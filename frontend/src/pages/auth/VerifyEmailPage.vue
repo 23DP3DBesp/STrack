@@ -2,9 +2,7 @@
   <div class="auth-page modern-auth">
     <header class="work-topbar">
       <div class="work-topbar-in">
-        <button class="work-brand" type="button" @click="goHome">
-          Car Tracker
-        </button>
+        <button class="work-brand" type="button" @click="goHome">Car Tracker</button>
 
         <nav class="work-links">
           <button class="work-link" type="button" @click="goHome">Home</button>
@@ -31,12 +29,7 @@
             {{ activeEmail }}
           </v-alert>
 
-          <v-alert
-            v-if="showMailtrapFallback"
-            type="warning"
-            variant="tonal"
-            class="mt-4 mb-3"
-          >
+          <v-alert v-if="showMailtrapFallback" type="warning" variant="tonal" class="mt-4 mb-3">
             {{ t('auth.verifyEmailSentFallback') }}
           </v-alert>
 
@@ -50,20 +43,11 @@
               {{ t('auth.sendAgain') }}
             </v-btn>
 
-            <v-btn
-              class="ui-btn-secondary"
-              variant="text"
-              @click="goLogin"
-            >
+            <v-btn class="ui-btn-secondary" variant="text" @click="goLogin">
               {{ t('auth.goToLogin') }}
             </v-btn>
 
-            <v-btn
-              v-if="!activeEmail"
-              class="ui-btn-secondary"
-              variant="text"
-              @click="goRegister"
-            >
+            <v-btn v-if="!activeEmail" class="ui-btn-secondary" variant="text" @click="goRegister">
               {{ t('auth.goToRegister') }}
             </v-btn>
           </div>
@@ -103,8 +87,13 @@ const statusMessage = computed(() => {
   return t('auth.verifyEmailSubtitle')
 })
 
-const showMailtrapFallback = computed(() => status.value === 'notice' && route.query.emailSent === '0')
-const canResend = computed(() => status.value !== 'verified' && status.value !== 'already-verified' && Boolean(activeEmail.value))
+const showMailtrapFallback = computed(
+  () => status.value === 'notice' && route.query.emailSent === '0'
+)
+const canResend = computed(
+  () =>
+    status.value !== 'verified' && status.value !== 'already-verified' && Boolean(activeEmail.value)
+)
 
 const goHome = () => router.push({ name: 'home' })
 const goLogin = () => router.push({ name: 'login' })
@@ -121,7 +110,6 @@ const resendVerification = async () => {
         email: activeEmail.value
       }
     })
-  } catch (_) {
-  }
+  } catch (_) {}
 }
 </script>

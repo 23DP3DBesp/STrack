@@ -51,8 +51,9 @@ class Car extends Model
     {
         return $this->hasMany(Mod::class);
     }
+
     public function recurringCosts(): HasMany
     {
-    return $this->hasMany(\App\Models\RecurringCost::class);
+        return $this->hasMany(RecurringCost::class);
     }
 }

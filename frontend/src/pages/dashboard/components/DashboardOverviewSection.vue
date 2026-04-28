@@ -101,7 +101,11 @@
           <div>
             <h3 class="work-panel-title">{{ t('dashboard.fuelConsumptionByMonth') }}</h3>
             <div class="work-item-sub">
-              {{ selectedCar ? `${selectedCar.brand} ${selectedCar.model}` : t('dashboard.selectCarFuelTrend') }}
+              {{
+                selectedCar
+                  ? `${selectedCar.brand} ${selectedCar.model}`
+                  : t('dashboard.selectCarFuelTrend')
+              }}
             </div>
           </div>
         </div>

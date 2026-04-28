@@ -1,10 +1,6 @@
 <template>
   <div class="chart-wrapper">
-    <Line
-      :data="data"
-      :options="options"
-      :height="height"
-    />
+    <Line :data="data" :options="options" :height="height" />
   </div>
 </template>
 

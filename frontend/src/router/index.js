@@ -8,16 +8,19 @@ import VerifyEmailPage from '../pages/auth/VerifyEmailPage.vue'
 import DashboardPage from '../pages/DashboardPage.vue'
 import ProfilePage from '../pages/ProfilePage.vue'
 
-
 const routes = [
   { path: '/', name: 'home', component: HomePage },
   { path: '/login', name: 'login', component: LoginPage, meta: { guest: true } },
   { path: '/register', name: 'register', component: RegisterPage, meta: { guest: true } },
-  { path: '/verify-email', name: 'verify-email', component: VerifyEmailPage, meta: { guest: true } },
+  {
+    path: '/verify-email',
+    name: 'verify-email',
+    component: VerifyEmailPage,
+    meta: { guest: true }
+  },
 
   { path: '/app', name: 'dashboard', component: DashboardPage, meta: { auth: true } },
   { path: '/profile', name: 'profile', component: ProfilePage, meta: { auth: true } }
-
 ]
 
 const router = createRouter({
