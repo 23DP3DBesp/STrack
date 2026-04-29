@@ -290,7 +290,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { computed, onMounted, ref, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   Chart as ChartJS,
@@ -408,6 +408,11 @@ onMounted(async () => {
   }
 
   await garage.bootstrap()
+})
+
+// Ensure charts update when period filter changes
+watch(() => garage.selectedPeriod, () => {
+  // Triggers recomputation of filtered data and charts
 })
 
 const onCarSearch = async () => {

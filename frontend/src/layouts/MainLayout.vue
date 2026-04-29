@@ -15,17 +15,14 @@
         </nav>
 
         <div class="work-auth">
-          <v-select
-            class="locale-select"
-            :model-value="currentLocale"
-            :items="localeOptions"
-            item-title="title"
-            item-value="value"
-            density="compact"
-            variant="outlined"
-            hide-details
-            @update:model-value="changeLocale"
-          />
+          <button
+            class="work-lang-btn"
+            :title="`${t('nav.language')}: ${currentLocale.toUpperCase()}`"
+            type="button"
+            @click="toggleLanguage"
+          >
+            {{ currentLocale.toUpperCase() }}
+          </button>
 
           <div class="work-user-chip">
             {{ auth.user?.login || 'User' }}
@@ -72,6 +69,11 @@ const goDashboard = () => {
 
 const goProfile = () => {
   router.push({ name: 'profile' })
+}
+
+const toggleLanguage = async () => {
+  const nextLocale = locale.value === 'en' ? 'lv' : 'en'
+  await changeLocale(nextLocale)
 }
 
 const changeLocale = async (nextLocale) => {

@@ -129,11 +129,12 @@
           </div>
         </div>
 
-        <ChartWrapper
-          v-if="monthlyExpenseChart.length"
-          :data="monthlyExpenseData"
-          :options="stackedChartOptions"
-        />
+        <div v-if="monthlyExpenseChart && monthlyExpenseChart.length > 0">
+          <ChartWrapper
+            :data="monthlyExpenseData"
+            :options="stackedChartOptions"
+          />
+        </div>
 
         <div v-else class="chart-empty-state">
           {{ t('dashboard.needExpensesForBreakdown') }}
