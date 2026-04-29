@@ -138,7 +138,7 @@ class AuthController extends Controller
 
     private function frontendVerificationUrl(string $status, ?string $email = null): string
     {
-        $baseUrl = rtrim((string) env('FRONTEND_URL', 'http://localhost:5173'), '/');
+        $baseUrl = rtrim((string) config('app.frontend_url', 'http://localhost:5173'), '/');
         $query = http_build_query(array_filter([
             'status' => $status,
             'email' => $email,
