@@ -112,6 +112,7 @@
 
         <ChartWrapper
           v-if="fuelConsumptionChart.length"
+          type="line"
           :data="fuelConsumptionData"
           :options="chartOptions"
         />
@@ -131,6 +132,7 @@
 
         <div v-if="monthlyExpenseChart && monthlyExpenseChart.length > 0">
           <ChartWrapper
+            type="bar"
             :data="monthlyExpenseData"
             :options="stackedChartOptions"
           />
@@ -145,7 +147,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ChartWrapper from '../../../components/ChartWrapper.vue'
 import ExpiryCard from './ExpiryCard.vue'
@@ -211,6 +213,15 @@ defineProps({
 
 const emit = defineEmits(['add-car', 'refresh', 'edit-expiry'])
 const { t } = useI18n()
+
+// Debug logging
+watch(() => monthlyExpenseChart, (newVal) => {
+  console.log('monthlyExpenseChart changed:', newVal?.length, newVal)
+}, { deep: true })
+
+watch(() => monthlyExpenseData, (newVal) => {
+  console.log('monthlyExpenseData changed:', newVal?.datasets?.length, newVal)
+}, { deep: true })
 
 const periodOptions = computed(() => [
   { value: 'all', label: t('dashboard.allTime') },

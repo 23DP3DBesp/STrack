@@ -184,12 +184,22 @@ export const useGarageStore = defineStore('garage', {
         grouped[key].total += toNumber(item.cost)
       })
 
-      return Object.entries(grouped)
+      const result = Object.entries(grouped)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([month, values]) => ({
           month,
           ...values
         }))
+
+      console.log('📊 monthlyExpenseBreakdown computed:', {
+        fuelLogs: this.filteredFuelLogs.length,
+        repairs: this.filteredRepairs.length,
+        mods: this.filteredMods.length,
+        result: result.length,
+        data: result
+      })
+
+      return result
     },
 
     selectedCarContext() {

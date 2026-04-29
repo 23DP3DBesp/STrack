@@ -1,11 +1,12 @@
 <template>
   <div class="chart-wrapper">
-    <Line :data="data" :options="options" :height="height" />
+    <component :is="chartComponent" :data="data" :options="options" :height="height" />
   </div>
 </template>
 
 <script setup>
-import { Line } from 'vue-chartjs'
+import { computed } from 'vue'
+import { Line, Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,7 +30,7 @@ ChartJS.register(
   Legend
 )
 
-defineProps({
+const props = defineProps({
   data: {
     type: Object,
     default: () => ({})
@@ -41,6 +42,15 @@ defineProps({
   height: {
     type: Number,
     default: 300
+  },
+  type: {
+    type: String,
+    default: 'line',
+    validator: (value) => ['line', 'bar'].includes(value)
   }
+})
+
+const chartComponent = computed(() => {
+  return props.type === 'bar' ? Bar : Line
 })
 </script>

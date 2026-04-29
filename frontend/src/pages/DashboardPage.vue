@@ -382,6 +382,17 @@ const fuelConsumptionData = computed(() => buildFuelConsumptionData(fuelConsumpt
 
 const monthlyExpenseData = computed(() => buildMonthlyExpenseData(monthlyExpenseChart.value, t))
 
+// Debug logging
+watch(() => monthlyExpenseChart.value, (newVal) => {
+  console.log('🔍 DashboardPage monthlyExpenseChart:', {
+    length: newVal?.length,
+    data: newVal,
+    fuelLogs: garage.fuelLogs.length,
+    repairs: garage.repairs.length,
+    mods: garage.mods.length
+  })
+})
+
 const chartOptions = computed(() => buildChartOptions(formatCurrency))
 
 const stackedChartOptions = computed(() => buildStackedChartOptions(formatCurrency))
