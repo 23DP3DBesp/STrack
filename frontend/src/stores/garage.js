@@ -78,33 +78,48 @@ export const useGarageStore = defineStore('garage', {
     },
 
     filteredFuelLogs(state) {
-      if (state.selectedPeriod === 'all') return state.fuelLogs
+      if (state.selectedPeriod === 'all') {
+        console.log('🔍 filteredFuelLogs (all):', state.fuelLogs.length)
+        return state.fuelLogs
+      }
 
       const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
       const threshold = new Date()
       threshold.setMonth(threshold.getMonth() - monthsBack)
 
-      return state.fuelLogs.filter((item) => new Date(item.date) >= threshold)
+      const filtered = state.fuelLogs.filter((item) => new Date(item.date) >= threshold)
+      console.log(`🔍 filteredFuelLogs (${state.selectedPeriod}): ${filtered.length} of ${state.fuelLogs.length}`)
+      return filtered
     },
 
     filteredRepairs(state) {
-      if (state.selectedPeriod === 'all') return state.repairs
+      if (state.selectedPeriod === 'all') {
+        console.log('🔍 filteredRepairs (all):', state.repairs.length)
+        return state.repairs
+      }
 
       const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
       const threshold = new Date()
       threshold.setMonth(threshold.getMonth() - monthsBack)
 
-      return state.repairs.filter((item) => new Date(item.date) >= threshold)
+      const filtered = state.repairs.filter((item) => new Date(item.date) >= threshold)
+      console.log(`🔍 filteredRepairs (${state.selectedPeriod}): ${filtered.length} of ${state.repairs.length}`)
+      return filtered
     },
 
     filteredMods(state) {
-      if (state.selectedPeriod === 'all') return state.mods
+      if (state.selectedPeriod === 'all') {
+        console.log('🔍 filteredMods (all):', state.mods.length)
+        return state.mods
+      }
 
       const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
       const threshold = new Date()
       threshold.setMonth(threshold.getMonth() - monthsBack)
 
-      return state.mods.filter((item) => new Date(item.date_installed) >= threshold)
+      const filtered = state.mods.filter((item) => new Date(item.date_installed) >= threshold)
+      console.log(`🔍 filteredMods (${state.selectedPeriod}): ${filtered.length} of ${state.mods.length}`)
+      return filtered
     },
 
     totalFuelSpend() {
@@ -238,7 +253,9 @@ export const useGarageStore = defineStore('garage', {
     },
 
     setSelectedPeriod(period) {
+      console.log('⏱️  setSelectedPeriod called:', this.selectedPeriod, '->', period)
       this.selectedPeriod = period
+      console.log('⏱️  setSelectedPeriod done, new value:', this.selectedPeriod)
     },
 
     resetSelectedCarState() {

@@ -422,9 +422,10 @@ onMounted(async () => {
 })
 
 // Ensure charts update when period filter changes
-watch(() => garage.selectedPeriod, () => {
-  // Triggers recomputation of filtered data and charts
-})
+watch(() => garage.selectedPeriod, (newPeriod, oldPeriod) => {
+  console.log('📅 Period changed:', oldPeriod, '->', newPeriod)
+  // Force recomputation of filtered data
+}, { immediate: true })
 
 const onCarSearch = async () => {
   await garage.fetchCars(carSearch.value || '')

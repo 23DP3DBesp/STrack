@@ -215,6 +215,10 @@ const emit = defineEmits(['add-car', 'refresh', 'edit-expiry'])
 const { t } = useI18n()
 
 // Debug logging
+watch(selectedPeriod, (newVal, oldVal) => {
+  console.log('🔘 selectedPeriod prop changed:', oldVal, '->', newVal)
+})
+
 watch(() => monthlyExpenseChart, (newVal) => {
   console.log('monthlyExpenseChart changed:', newVal?.length, newVal)
 }, { deep: true })
