@@ -4,7 +4,7 @@
       v-model:selected-period="selectedPeriodProxy"
       :login="auth.user?.login"
       :selected-car="selectedCar"
-      :stats="garage.summary.stats"
+      :stats="garage.filteredStats"
       :selected-period-label="garage.selectedPeriodLabel"
       :cost-per-km="garage.costPerKm"
       :total-distance-tracked="garage.totalDistanceTracked"

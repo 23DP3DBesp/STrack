@@ -235,6 +235,16 @@ export const useGarageStore = defineStore('garage', {
       return result
     },
 
+    filteredStats() {
+      return {
+        cars_total: this.summary.stats.cars_total,
+        fuel_logs_total: this.filteredFuelLogs.length,
+        repairs_total: this.filteredRepairs.length,
+        mods_total: this.filteredMods.length,
+        total_spent: this.totalFuelSpend + this.totalRepairSpend + this.totalModSpend
+      }
+    },
+
     selectedCarContext() {
       if (!this.selectedCar) return null
 
