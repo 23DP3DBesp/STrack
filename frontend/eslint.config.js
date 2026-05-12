@@ -32,5 +32,15 @@ export default [
       ]
     }
   },
+  {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
+      globals: {
+        ...globals.node
+      }
+    }
+  },
   prettier
 ]

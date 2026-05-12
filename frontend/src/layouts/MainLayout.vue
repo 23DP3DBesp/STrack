@@ -56,11 +56,6 @@ const router = useRouter()
 const auth = useAuthStore()
 const { t, locale } = useI18n()
 
-const localeOptions = [
-  { title: 'EN', value: 'en' },
-  { title: 'LV', value: 'lv' }
-]
-
 const currentLocale = computed(() => locale.value)
 
 const goDashboard = () => {

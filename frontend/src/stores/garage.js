@@ -13,6 +13,65 @@ const toNumber = (value) => Number(value || 0)
 
 const monthKeyFromDate = (value) => String(value || '').slice(0, 7)
 
+export const parseLocalDate = (value) => {
+  if (!value) return null
+
+  if (value instanceof Date) {
+    const date = new Date(value)
+    date.setHours(0, 0, 0, 0)
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
+  const dateString = String(value).slice(0, 10)
+  const isoDateMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+
+  if (isoDateMatch) {
+    const [, year, month, day] = isoDateMatch
+    return new Date(Number(year), Number(month) - 1, Number(day))
+  }
+
+  const date = new Date(value)
+  date.setHours(0, 0, 0, 0)
+
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export const periodStartDate = (period, referenceDate = new Date()) => {
+  if (period === 'all') return null
+
+  const monthsBack = Number(String(period).replace('m', ''))
+
+  if (!Number.isFinite(monthsBack) || monthsBack <= 0) return null
+
+  const reference = parseLocalDate(referenceDate)
+  if (!reference) return null
+
+  const targetMonth = reference.getMonth() - monthsBack
+  const lastTargetMonthDay = new Date(
+    reference.getFullYear(),
+    targetMonth + 1,
+    0
+  ).getDate()
+
+  return new Date(
+    reference.getFullYear(),
+    targetMonth,
+    Math.min(reference.getDate(), lastTargetMonthDay)
+  )
+}
+
+const filterBySelectedPeriod = (items, period, dateField) => {
+  const threshold = periodStartDate(period)
+
+  if (!threshold) return items
+
+  return items.filter((item) => {
+    const itemDate = parseLocalDate(item?.[dateField])
+
+    return itemDate ? itemDate >= threshold : false
+  })
+}
+
 export const useGarageStore = defineStore('garage', {
   state: () => ({
     summary: {
@@ -78,66 +137,15 @@ export const useGarageStore = defineStore('garage', {
     },
 
     filteredFuelLogs(state) {
-      if (state.selectedPeriod === 'all') {
-        console.log('🔍 filteredFuelLogs (all):', state.fuelLogs.length)
-        return state.fuelLogs
-      }
-
-      const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
-      const threshold = new Date()
-      threshold.setDate(1)
-      threshold.setMonth(threshold.getMonth() - monthsBack)
-      threshold.setHours(0, 0, 0, 0)
-
-      const filtered = state.fuelLogs.filter((item) => {
-        const itemDate = new Date(item.date)
-        itemDate.setHours(0, 0, 0, 0)
-        return itemDate >= threshold
-      })
-      console.log(`🔍 filteredFuelLogs (${state.selectedPeriod}): ${filtered.length} of ${state.fuelLogs.length}`)
-      return filtered
+      return filterBySelectedPeriod(state.fuelLogs, state.selectedPeriod, 'date')
     },
 
     filteredRepairs(state) {
-      if (state.selectedPeriod === 'all') {
-        console.log('🔍 filteredRepairs (all):', state.repairs.length)
-        return state.repairs
-      }
-
-      const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
-      const threshold = new Date()
-      threshold.setDate(1)
-      threshold.setMonth(threshold.getMonth() - monthsBack)
-      threshold.setHours(0, 0, 0, 0)
-
-      const filtered = state.repairs.filter((item) => {
-        const itemDate = new Date(item.date)
-        itemDate.setHours(0, 0, 0, 0)
-        return itemDate >= threshold
-      })
-      console.log(`🔍 filteredRepairs (${state.selectedPeriod}): ${filtered.length} of ${state.repairs.length}`)
-      return filtered
+      return filterBySelectedPeriod(state.repairs, state.selectedPeriod, 'date')
     },
 
     filteredMods(state) {
-      if (state.selectedPeriod === 'all') {
-        console.log('🔍 filteredMods (all):', state.mods.length)
-        return state.mods
-      }
-
-      const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
-      const threshold = new Date()
-      threshold.setDate(1)
-      threshold.setMonth(threshold.getMonth() - monthsBack)
-      threshold.setHours(0, 0, 0, 0)
-
-      const filtered = state.mods.filter((item) => {
-        const itemDate = new Date(item.date_installed)
-        itemDate.setHours(0, 0, 0, 0)
-        return itemDate >= threshold
-      })
-      console.log(`🔍 filteredMods (${state.selectedPeriod}): ${filtered.length} of ${state.mods.length}`)
-      return filtered
+      return filterBySelectedPeriod(state.mods, state.selectedPeriod, 'date_installed')
     },
 
     totalFuelSpend() {

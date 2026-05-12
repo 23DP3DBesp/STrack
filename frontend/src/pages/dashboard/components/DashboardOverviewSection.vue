@@ -147,7 +147,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ChartWrapper from '../../../components/ChartWrapper.vue'
 import ExpiryCard from './ExpiryCard.vue'
@@ -213,19 +213,6 @@ defineProps({
 
 const emit = defineEmits(['add-car', 'refresh', 'edit-expiry'])
 const { t } = useI18n()
-
-// Debug logging
-watch(selectedPeriod, (newVal, oldVal) => {
-  console.log('🔘 selectedPeriod prop changed:', oldVal, '->', newVal)
-})
-
-watch(() => monthlyExpenseChart, (newVal) => {
-  console.log('monthlyExpenseChart changed:', newVal?.length, newVal)
-}, { deep: true })
-
-watch(() => monthlyExpenseData, (newVal) => {
-  console.log('monthlyExpenseData changed:', newVal?.datasets?.length, newVal)
-}, { deep: true })
 
 const periodOptions = computed(() => [
   { value: 'all', label: t('dashboard.allTime') },
