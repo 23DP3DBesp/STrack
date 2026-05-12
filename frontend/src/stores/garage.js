@@ -85,9 +85,15 @@ export const useGarageStore = defineStore('garage', {
 
       const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
       const threshold = new Date()
+      threshold.setDate(1)
       threshold.setMonth(threshold.getMonth() - monthsBack)
+      threshold.setHours(0, 0, 0, 0)
 
-      const filtered = state.fuelLogs.filter((item) => new Date(item.date) >= threshold)
+      const filtered = state.fuelLogs.filter((item) => {
+        const itemDate = new Date(item.date)
+        itemDate.setHours(0, 0, 0, 0)
+        return itemDate >= threshold
+      })
       console.log(`🔍 filteredFuelLogs (${state.selectedPeriod}): ${filtered.length} of ${state.fuelLogs.length}`)
       return filtered
     },
@@ -100,9 +106,15 @@ export const useGarageStore = defineStore('garage', {
 
       const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
       const threshold = new Date()
+      threshold.setDate(1)
       threshold.setMonth(threshold.getMonth() - monthsBack)
+      threshold.setHours(0, 0, 0, 0)
 
-      const filtered = state.repairs.filter((item) => new Date(item.date) >= threshold)
+      const filtered = state.repairs.filter((item) => {
+        const itemDate = new Date(item.date)
+        itemDate.setHours(0, 0, 0, 0)
+        return itemDate >= threshold
+      })
       console.log(`🔍 filteredRepairs (${state.selectedPeriod}): ${filtered.length} of ${state.repairs.length}`)
       return filtered
     },
@@ -115,9 +127,15 @@ export const useGarageStore = defineStore('garage', {
 
       const monthsBack = Number(String(state.selectedPeriod).replace('m', ''))
       const threshold = new Date()
+      threshold.setDate(1)
       threshold.setMonth(threshold.getMonth() - monthsBack)
+      threshold.setHours(0, 0, 0, 0)
 
-      const filtered = state.mods.filter((item) => new Date(item.date_installed) >= threshold)
+      const filtered = state.mods.filter((item) => {
+        const itemDate = new Date(item.date_installed)
+        itemDate.setHours(0, 0, 0, 0)
+        return itemDate >= threshold
+      })
       console.log(`🔍 filteredMods (${state.selectedPeriod}): ${filtered.length} of ${state.mods.length}`)
       return filtered
     },
