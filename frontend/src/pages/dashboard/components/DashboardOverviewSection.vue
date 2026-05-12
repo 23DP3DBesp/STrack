@@ -88,7 +88,7 @@
           type="button"
           class="period-chip"
           :class="{ active: selectedPeriod === option.value }"
-          @click="selectedPeriod = option.value"
+          @click="emit('update:selectedPeriod', option.value)"
         >
           {{ option.label }}
         </button>
@@ -153,12 +153,14 @@ import ChartWrapper from '../../../components/ChartWrapper.vue'
 import ExpiryCard from './ExpiryCard.vue'
 import { formatCurrency } from '../formatters'
 
-const selectedPeriod = defineModel('selectedPeriod', { type: String, default: 'all' })
-
 defineProps({
   login: {
     type: String,
     default: ''
+  },
+  selectedPeriod: {
+    type: String,
+    default: 'all'
   },
   selectedCar: {
     type: Object,
@@ -211,7 +213,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['add-car', 'refresh', 'edit-expiry'])
+const emit = defineEmits(['add-car', 'refresh', 'edit-expiry', 'update:selectedPeriod'])
 const { t } = useI18n()
 
 const periodOptions = computed(() => [

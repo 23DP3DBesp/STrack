@@ -4,10 +4,10 @@
       v-model:selected-period="selectedPeriodProxy"
       :login="auth.user?.login"
       :selected-car="selectedCar"
-      :stats="garage.filteredStats"
+      :stats="overviewStats"
       :selected-period-label="garage.selectedPeriodLabel"
-      :cost-per-km="garage.costPerKm"
-      :total-distance-tracked="garage.totalDistanceTracked"
+      :cost-per-km="overviewCostPerKm"
+      :total-distance-tracked="overviewDistanceTracked"
       :fuel-consumption-chart="fuelConsumptionChart"
       :fuel-consumption-data="fuelConsumptionData"
       :monthly-expense-chart="monthlyExpenseChart"
@@ -373,6 +373,12 @@ const selectedPeriodProxy = computed({
   get: () => garage.selectedPeriod,
   set: (value) => garage.setSelectedPeriod(value)
 })
+
+const overviewStats = computed(() => garage.filteredStats)
+
+const overviewCostPerKm = computed(() => garage.costPerKm)
+
+const overviewDistanceTracked = computed(() => garage.totalDistanceTracked)
 
 const fuelConsumptionChart = computed(() => buildFuelConsumptionChart(garage.filteredFuelLogs))
 

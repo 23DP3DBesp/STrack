@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { parseLocalDate, periodStartDate } from './garage'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { parseLocalDate, periodStartDate, useGarageStore } from './garage'
 
 const formatDate = (date) => {
   const year = date.getFullYear()
@@ -26,5 +27,59 @@ describe('garage period helpers', () => {
     const start = periodStartDate('1m', new Date(2026, 2, 31))
 
     expect(formatDate(start)).toBe('2026-02-28')
+  })
+})
+
+describe('garage period filtered metrics', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 4, 12))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('updates overview metrics when the selected period changes', () => {
+    setActivePinia(createPinia())
+
+    const garage = useGarageStore()
+
+    garage.summary.stats.cars_total = 1
+    garage.fuelLogs = [
+      { id: 1, date: '2026-05-01', total_price: '100.00', mileage: 2000 },
+      { id: 2, date: '2026-02-20', total_price: '50.00', mileage: 1500 },
+      { id: 3, date: '2026-01-10', total_price: '25.00', mileage: 1000 }
+    ]
+    garage.repairs = [
+      { id: 1, date: '2026-04-10', cost: '200.00' },
+      { id: 2, date: '2026-01-05', cost: '300.00' }
+    ]
+    garage.mods = [
+      { id: 1, date_installed: '2026-03-15', cost: '400.00' },
+      { id: 2, date_installed: '2025-12-15', cost: '500.00' }
+    ]
+
+    garage.selectedPeriod = 'all'
+
+    expect(garage.filteredStats).toMatchObject({
+      fuel_logs_total: 3,
+      repairs_total: 2,
+      mods_total: 2,
+      total_spent: 1575
+    })
+    expect(garage.totalDistanceTracked).toBe(1000)
+    expect(garage.costPerKm).toBe(1.575)
+
+    garage.selectedPeriod = '3m'
+
+    expect(garage.filteredStats).toMatchObject({
+      fuel_logs_total: 2,
+      repairs_total: 1,
+      mods_total: 1,
+      total_spent: 750
+    })
+    expect(garage.totalDistanceTracked).toBe(500)
+    expect(garage.costPerKm).toBe(1.5)
   })
 })
