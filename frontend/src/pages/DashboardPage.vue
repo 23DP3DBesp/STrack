@@ -1,11 +1,11 @@
 ﻿<template>
   <MainLayout>
     <DashboardOverviewSection
-      v-model:selected-period="selectedPeriodProxy"
+      :selected-period="periodFilter"
       :login="auth.user?.login"
       :selected-car="selectedCar"
       :stats="overviewStats"
-      :selected-period-label="garage.selectedPeriodLabel"
+      :selected-period-label="periodFilterLabel"
       :cost-per-km="overviewCostPerKm"
       :total-distance-tracked="overviewDistanceTracked"
       :fuel-consumption-chart="fuelConsumptionChart"
@@ -17,6 +17,7 @@
       @add-car="openCarDialog"
       @refresh="reloadAll"
       @edit-expiry="openExpiryDialog"
+      @period-change="setPeriodFilter"
     />
 
     <DashboardGarageSection
@@ -290,7 +291,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, nextTick, watch } from 'vue'
+import { computed, onMounted, ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   Chart as ChartJS,
@@ -346,6 +347,7 @@ const activeTab = ref('fuel')
 const carSearch = ref('')
 const fuelFilters = ref({ date: '' })
 const repairFilters = ref({ date_from: '', date_to: '' })
+const periodFilter = ref('all')
 
 const carDialog = ref(false)
 const expiryDialog = ref(false)
@@ -369,35 +371,123 @@ const savingMod = ref(false)
 const saveError = ref('')
 
 const selectedCar = computed(() => garage.selectedCar)
-const selectedPeriodProxy = computed({
-  get: () => garage.selectedPeriod,
-  set: (value) => garage.setSelectedPeriod(value)
+
+const periodOptions = {
+  all: 'All time',
+  '3m': 'Last 3 months',
+  '6m': 'Last 6 months',
+  '12m': 'Last 12 months'
+}
+
+const parseDashboardDate = (value) => {
+  if (!value) return null
+
+  const valueString = String(value).slice(0, 10)
+  const match = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+
+  if (!match) return null
+
+  const [, year, month, day] = match
+  return new Date(Number(year), Number(month) - 1, Number(day))
+}
+
+const getPeriodStart = (period) => {
+  if (period === 'all') return null
+
+  const months = Number(String(period).replace('m', ''))
+  if (!Number.isFinite(months)) return null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const targetMonth = today.getMonth() - months
+  const lastTargetMonthDay = new Date(today.getFullYear(), targetMonth + 1, 0).getDate()
+
+  return new Date(
+    today.getFullYear(),
+    targetMonth,
+    Math.min(today.getDate(), lastTargetMonthDay)
+  )
+}
+
+const isInSelectedPeriod = (value) => {
+  const start = getPeriodStart(periodFilter.value)
+  if (!start) return true
+
+  const date = parseDashboardDate(value)
+  return date ? date >= start : false
+}
+
+const filteredFuelLogs = computed(() =>
+  garage.fuelLogs.filter((item) => isInSelectedPeriod(item.date))
+)
+
+const filteredRepairs = computed(() => garage.repairs.filter((item) => isInSelectedPeriod(item.date)))
+
+const filteredMods = computed(() =>
+  garage.mods.filter((item) => isInSelectedPeriod(item.date_installed))
+)
+
+const sumBy = (items, field) => items.reduce((sum, item) => sum + Number(item[field] || 0), 0)
+
+const overviewTotalSpend = computed(
+  () =>
+    sumBy(filteredFuelLogs.value, 'total_price') +
+    sumBy(filteredRepairs.value, 'cost') +
+    sumBy(filteredMods.value, 'cost')
+)
+
+const overviewDistanceTracked = computed(() => {
+  const mileages = filteredFuelLogs.value
+    .map((item) => Number(item.mileage || 0))
+    .filter((value) => value > 0)
+    .sort((a, b) => a - b)
+
+  if (mileages.length < 2) return 0
+
+  return Math.max(0, mileages[mileages.length - 1] - mileages[0])
 })
 
-const overviewStats = computed(() => garage.filteredStats)
+const overviewCostPerKm = computed(() => {
+  if (!overviewDistanceTracked.value) return 0
 
-const overviewCostPerKm = computed(() => garage.costPerKm)
+  return overviewTotalSpend.value / overviewDistanceTracked.value
+})
 
-const overviewDistanceTracked = computed(() => garage.totalDistanceTracked)
+const overviewStats = computed(() => ({
+  cars_total: garage.summary.stats.cars_total,
+  fuel_logs_total: filteredFuelLogs.value.length,
+  repairs_total: filteredRepairs.value.length,
+  mods_total: filteredMods.value.length,
+  total_spent: overviewTotalSpend.value
+}))
 
-const fuelConsumptionChart = computed(() => buildFuelConsumptionChart(garage.filteredFuelLogs))
+const periodFilterLabel = computed(() => periodOptions[periodFilter.value] || periodOptions.all)
 
-const monthlyExpenseChart = computed(() => garage.monthlyExpenseBreakdown)
+const fuelConsumptionChart = computed(() => buildFuelConsumptionChart(filteredFuelLogs.value))
+
+const monthlyExpenseChart = computed(() => {
+  const grouped = {}
+
+  const addAmount = (date, field, amount) => {
+    const month = String(date || '').slice(0, 7)
+    if (!month) return
+
+    grouped[month] ??= { month, fuel: 0, repairs: 0, mods: 0, total: 0 }
+    grouped[month][field] += Number(amount || 0)
+    grouped[month].total += Number(amount || 0)
+  }
+
+  filteredFuelLogs.value.forEach((item) => addAmount(item.date, 'fuel', item.total_price))
+  filteredRepairs.value.forEach((item) => addAmount(item.date, 'repairs', item.cost))
+  filteredMods.value.forEach((item) => addAmount(item.date_installed, 'mods', item.cost))
+
+  return Object.values(grouped).sort((a, b) => a.month.localeCompare(b.month))
+})
 
 const fuelConsumptionData = computed(() => buildFuelConsumptionData(fuelConsumptionChart.value))
 
 const monthlyExpenseData = computed(() => buildMonthlyExpenseData(monthlyExpenseChart.value, t))
-
-// Debug logging
-watch(() => monthlyExpenseChart.value, (newVal) => {
-  console.log('🔍 DashboardPage monthlyExpenseChart:', {
-    length: newVal?.length,
-    data: newVal,
-    fuelLogs: garage.fuelLogs.length,
-    repairs: garage.repairs.length,
-    mods: garage.mods.length
-  })
-})
 
 const chartOptions = computed(() => buildChartOptions(formatCurrency))
 
@@ -416,6 +506,10 @@ const fuelPricePerLiter = computed(() => {
   return liters > 0 ? (price / liters).toFixed(2) : ''
 })
 
+const setPeriodFilter = (period) => {
+  periodFilter.value = period
+}
+
 onMounted(async () => {
   carSearch.value = garage.search || ''
   fuelFilters.value = { date: garage.fuelFilters?.date || '' }
@@ -426,12 +520,6 @@ onMounted(async () => {
 
   await garage.bootstrap()
 })
-
-// Ensure charts update when period filter changes
-watch(() => garage.selectedPeriod, (newPeriod, oldPeriod) => {
-  console.log('📅 Period changed:', oldPeriod, '->', newPeriod)
-  // Force recomputation of filtered data
-}, { immediate: true })
 
 const onCarSearch = async () => {
   await garage.fetchCars(carSearch.value || '')

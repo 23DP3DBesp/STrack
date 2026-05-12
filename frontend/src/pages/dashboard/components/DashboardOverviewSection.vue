@@ -88,7 +88,7 @@
           type="button"
           class="period-chip"
           :class="{ active: selectedPeriod === option.value }"
-          @click="emit('update:selectedPeriod', option.value)"
+          @click="emit('period-change', option.value)"
         >
           {{ option.label }}
         </button>
@@ -213,7 +213,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['add-car', 'refresh', 'edit-expiry', 'update:selectedPeriod'])
+const emit = defineEmits(['add-car', 'refresh', 'edit-expiry', 'period-change'])
 const { t } = useI18n()
 
 const periodOptions = computed(() => [
