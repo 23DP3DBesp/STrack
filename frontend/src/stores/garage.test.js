@@ -82,4 +82,22 @@ describe('garage period filtered metrics', () => {
     expect(garage.totalDistanceTracked).toBe(500)
     expect(garage.costPerKm).toBe(1.5)
   })
+
+  it('excludes future records from selected period metrics', () => {
+    setActivePinia(createPinia())
+
+    const garage = useGarageStore()
+
+    garage.fuelLogs = [
+      { id: 1, date: '2026-05-01', total_price: '100.00', mileage: 2000 },
+      { id: 2, date: '2026-08-05', total_price: '999.00', mileage: 5000 }
+    ]
+
+    garage.selectedPeriod = '3m'
+
+    expect(garage.filteredStats).toMatchObject({
+      fuel_logs_total: 1,
+      total_spent: 100
+    })
+  })
 })

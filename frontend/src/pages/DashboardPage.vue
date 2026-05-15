@@ -415,7 +415,10 @@ const isInSelectedPeriod = (value) => {
   if (!start) return true
 
   const date = parseDashboardDate(value)
-  return date ? date >= start : false
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  return date ? date >= start && date <= today : false
 }
 
 const filteredFuelLogs = computed(() =>

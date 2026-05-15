@@ -19,6 +19,7 @@ class DashboardController extends Controller
         $currentMonth = now()->format('Y-m');
         $period = (string) $request->query('period', 'all');
         $periodStart = $this->periodStartDate($period);
+        $periodEnd = $periodStart ? now()->toDateString() : null;
 
         $carsCount = Car::query()
             ->where('user_id', $userId)
@@ -28,6 +29,7 @@ class DashboardController extends Controller
             ->with('car:id,brand,model,user_id')
             ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
             ->when($periodStart, fn ($query) => $query->whereDate('date', '>=', $periodStart))
+            ->when($periodEnd, fn ($query) => $query->whereDate('date', '<=', $periodEnd))
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->get();
@@ -36,6 +38,7 @@ class DashboardController extends Controller
             ->with('car:id,brand,model,user_id')
             ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
             ->when($periodStart, fn ($query) => $query->whereDate('date', '>=', $periodStart))
+            ->when($periodEnd, fn ($query) => $query->whereDate('date', '<=', $periodEnd))
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->get();
@@ -44,6 +47,7 @@ class DashboardController extends Controller
             ->with('car:id,brand,model,user_id')
             ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
             ->when($periodStart, fn ($query) => $query->whereDate('date_installed', '>=', $periodStart))
+            ->when($periodEnd, fn ($query) => $query->whereDate('date_installed', '<=', $periodEnd))
             ->orderByDesc('date_installed')
             ->orderByDesc('id')
             ->get();

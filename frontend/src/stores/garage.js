@@ -67,10 +67,12 @@ const filterBySelectedPeriod = (items, period, dateField) => {
 
   if (!threshold) return items
 
+  const today = parseLocalDate(new Date())
+
   return items.filter((item) => {
     const itemDate = parseLocalDate(item?.[dateField])
 
-    return itemDate ? itemDate >= threshold : false
+    return itemDate ? itemDate >= threshold && itemDate <= today : false
   })
 }
 
