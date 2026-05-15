@@ -291,7 +291,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { computed, onMounted, ref, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   Chart as ChartJS,
@@ -341,11 +342,12 @@ ChartJS.register(
 
 const auth = useAuthStore()
 const garage = useGarageStore()
+const route = useRoute()
 const { t } = useI18n()
 
 const activeTab = ref('fuel')
 const carSearch = ref('')
-const fuelFilters = ref({ date: '' })
+const fuelFilters = ref({ date_from: '', date_to: '' })
 const repairFilters = ref({ date_from: '', date_to: '' })
 
 const carDialog = ref(false)
@@ -372,12 +374,12 @@ const saveError = ref('')
 const selectedCar = computed(() => garage.selectedCar)
 const periodFilter = computed(() => garage.selectedPeriod)
 
-const periodOptions = {
-  all: 'All time',
-  '3m': 'Last 3 months',
-  '6m': 'Last 6 months',
-  '12m': 'Last 12 months'
-}
+const periodOptions = computed(() => ({
+  all: t('dashboard.allTime'),
+  '3m': t('dashboard.months3'),
+  '6m': t('dashboard.months6'),
+  '12m': t('dashboard.months12')
+}))
 
 const parseDashboardDate = (value) => {
   if (!value) return null
@@ -445,7 +447,9 @@ const overviewStats = computed(() => ({
   total_spent: overviewTotalSpend.value
 }))
 
-const periodFilterLabel = computed(() => periodOptions[periodFilter.value] || periodOptions.all)
+const periodFilterLabel = computed(
+  () => periodOptions.value[periodFilter.value] || periodOptions.value.all
+)
 
 const fuelConsumptionChart = computed(() => buildFuelConsumptionChart(filteredFuelLogs.value))
 
@@ -476,16 +480,41 @@ const setPeriodFilter = async (period) => {
   await garage.setSelectedPeriod(period)
 }
 
+const applyHashNavigation = async (hash = route.hash) => {
+  const target = String(hash || '').replace('#', '')
+
+  if (['fuel', 'repairs', 'mods'].includes(target)) {
+    activeTab.value = target
+  }
+
+  await nextTick()
+
+  if (target) {
+    document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
 onMounted(async () => {
   carSearch.value = garage.search || ''
-  fuelFilters.value = { date: garage.fuelFilters?.date || '' }
+  fuelFilters.value = {
+    date_from: garage.fuelFilters?.date_from || '',
+    date_to: garage.fuelFilters?.date_to || ''
+  }
   repairFilters.value = {
     date_from: garage.repairFilters?.date_from || '',
     date_to: garage.repairFilters?.date_to || ''
   }
 
   await garage.bootstrap()
+  await applyHashNavigation()
 })
+
+watch(
+  () => route.hash,
+  async (hash) => {
+    await applyHashNavigation(hash)
+  }
+)
 
 const onCarSearch = async () => {
   await garage.fetchCars(carSearch.value || '')
@@ -684,7 +713,7 @@ const applyFuelFilters = async () => {
 }
 
 const resetFuelFilters = async () => {
-  fuelFilters.value = { date: '' }
+  fuelFilters.value = { date_from: '', date_to: '' }
   await garage.fetchFuelLogs(fuelFilters.value)
 }
 

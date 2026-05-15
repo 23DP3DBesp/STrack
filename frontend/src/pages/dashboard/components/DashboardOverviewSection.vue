@@ -1,19 +1,46 @@
 <template>
-  <section class="dashboard-overview">
+  <section id="overview" class="dashboard-overview">
     <section class="work-hero-card dashboard-hero">
-      <div class="work-kicker">{{ t('dashboard.heroKicker') }}</div>
-      <h1 class="work-title">{{ t('dashboard.welcome') }}, {{ login || '—' }}</h1>
-      <p class="work-subtitle">
-        {{ t('dashboard.subtitle') }}
-      </p>
+      <div class="dashboard-hero-copy">
+        <div class="work-kicker">{{ t('dashboard.heroKicker') }}</div>
+        <h1 class="work-title">
+          {{
+            selectedCar
+              ? `${selectedCar.brand} ${selectedCar.model}`
+              : `${t('dashboard.welcome')}, ${login || '—'}`
+          }}
+        </h1>
+        <p class="work-subtitle">
+          {{
+            selectedCar
+              ? `${selectedCar.year} · ${selectedCar.engine_volume}L · ${selectedCar.license_plate}`
+              : t('dashboard.subtitle')
+          }}
+        </p>
 
-      <div class="work-hero-actions">
-        <button class="work-solid-btn" type="button" @click="emit('add-car')">
-          {{ t('dashboard.addCar') }}
-        </button>
-        <button class="work-outline-btn" type="button" @click="emit('refresh')">
-          {{ t('dashboard.refresh') }}
-        </button>
+        <div class="work-hero-actions">
+          <button class="work-solid-btn" type="button" @click="emit('add-car')">
+            {{ t('dashboard.addCar') }}
+          </button>
+          <button class="work-outline-btn" type="button" @click="emit('refresh')">
+            {{ t('dashboard.refresh') }}
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-hero-summary">
+        <div>
+          <span>{{ t('dashboard.selectedPeriod') }}</span>
+          <strong>{{ selectedPeriodLabel }}</strong>
+        </div>
+        <div>
+          <span>{{ t('dashboard.distanceTracked') }}</span>
+          <strong>{{ totalDistanceTracked ? `${totalDistanceTracked} km` : '—' }}</strong>
+        </div>
+        <div>
+          <span>{{ t('dashboard.costPerKm') }}</span>
+          <strong>{{ costPerKm ? formatCurrency(costPerKm) : '—' }}</strong>
+        </div>
       </div>
     </section>
 

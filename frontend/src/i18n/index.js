@@ -9,6 +9,7 @@ const messages = {
       login: 'Login',
       register: 'Register',
       dashboard: 'Dashboard',
+      garage: 'Garage',
       profile: 'Profile',
       logout: 'Logout',
       language: 'Language'
@@ -21,6 +22,12 @@ const messages = {
         'Keep a searchable garage, monitor fuel costs, log maintenance, and build a full tuning history for each car.',
       start: 'Start Tracking',
       signIn: 'Sign In',
+      preview: {
+        label: 'Live overview',
+        title: 'BMW 320d',
+        status: 'In control',
+        soon: '18 days left'
+      },
       cards: {
         cars: {
           label: 'Cars',
@@ -107,7 +114,10 @@ const messages = {
       repairsTab: 'Repairs',
       modsTab: 'Mods',
       fuelingDate: 'Fueling date',
+      fuelingDateFrom: 'Fueling date from',
+      fuelingDateTo: 'Fueling date to',
       repairDateFrom: 'Repair date from',
+      repairDateTo: 'Repair date to',
       apply: 'Apply',
       reset: 'Reset',
       add: 'Add',
@@ -137,6 +147,16 @@ const messages = {
 
       editCar: 'Edit car',
       updateExpiryDates: 'Update expiry dates',
+      daysExpiredAgo: '{days}d ago',
+      expiresToday: 'Expires today',
+      expiresTomorrow: 'Expires tomorrow',
+      daysLeft: '{days} days left',
+      expiryDateMissing: '{label} date not set',
+      expiryExpired: '{label} expired {days} days ago',
+      expiryToday: '{label} expires today',
+      expiryTomorrow: '{label} expires tomorrow',
+      expirySoon: '{label} expires in {days} days ({date})',
+      expiryValidUntil: '{label} valid until {date}',
       brand: 'Brand',
       model: 'Model',
       year: 'Year',
@@ -172,6 +192,7 @@ const messages = {
       login: 'Ieiet',
       register: 'Reģistrēties',
       dashboard: 'Panelis',
+      garage: 'Garāža',
       profile: 'Profils',
       logout: 'Iziet',
       language: 'Valoda'
@@ -184,6 +205,12 @@ const messages = {
         'Pārvaldi savu garāžu, seko degvielas izmaksām, reģistrē apkopi un veido pilnu katra auto vēsturi.',
       start: 'Sākt uzskaiti',
       signIn: 'Ieiet',
+      preview: {
+        label: 'Ātrais pārskats',
+        title: 'BMW 320d',
+        status: 'Kontrolēts',
+        soon: 'Atlikušas 18 dienas'
+      },
       cards: {
         cars: {
           label: 'Auto',
@@ -271,7 +298,10 @@ const messages = {
       repairsTab: 'Remonti',
       modsTab: 'Modifikācijas',
       fuelingDate: 'Uzpildes datums',
+      fuelingDateFrom: 'Uzpildes datums no',
+      fuelingDateTo: 'Uzpildes datums līdz',
       repairDateFrom: 'Remonta datums no',
+      repairDateTo: 'Remonta datums līdz',
       apply: 'Piemērot',
       reset: 'Atiestatīt',
       add: 'Pievienot',
@@ -301,6 +331,16 @@ const messages = {
 
       editCar: 'Rediģēt auto',
       updateExpiryDates: 'Atjaunot termiņu beigās',
+      daysExpiredAgo: 'Nokavēts {days} d.',
+      expiresToday: 'Beidzas šodien',
+      expiresTomorrow: 'Beidzas rīt',
+      daysLeft: 'Atlikušas {days} dienas',
+      expiryDateMissing: '{label} datums nav norādīts',
+      expiryExpired: '{label} beidzās pirms {days} dienām',
+      expiryToday: '{label} beidzas šodien',
+      expiryTomorrow: '{label} beidzas rīt',
+      expirySoon: '{label} beidzas pēc {days} dienām ({date})',
+      expiryValidUntil: '{label} derīga līdz {date}',
       brand: 'Marka',
       model: 'Modelis',
       year: 'Gads',

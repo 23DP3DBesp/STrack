@@ -57,14 +57,16 @@ const daysLeft = computed(() => {
 
 const daysText = computed(() => {
   if (daysLeft.value === null) return ''
-  if (daysLeft.value < 0) return `Expired ${Math.abs(daysLeft.value)}d ago`
-  if (daysLeft.value === 0) return 'Expires today'
-  if (daysLeft.value === 1) return 'Expires tomorrow'
-  return `${daysLeft.value} days left`
+  if (daysLeft.value < 0) {
+    return t('dashboard.daysExpiredAgo', { days: Math.abs(daysLeft.value) })
+  }
+  if (daysLeft.value === 0) return t('dashboard.expiresToday')
+  if (daysLeft.value === 1) return t('dashboard.expiresTomorrow')
+  return t('dashboard.daysLeft', { days: daysLeft.value })
 })
 
 const message = computed(() => {
-  return getExpiryMessage(props.expiryDate, title.value)
+  return getExpiryMessage(props.expiryDate, title.value, t)
 })
 </script>
 

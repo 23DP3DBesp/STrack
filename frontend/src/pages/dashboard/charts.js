@@ -1,15 +1,53 @@
+const toNumber = (value) => Number(value || 0)
+
+const fuelLogsWithEffectiveDistance = (items) => {
+  let previousMileage = null
+
+  return [...items]
+    .sort((a, b) => {
+      const dateCompare = String(a.date || '').localeCompare(String(b.date || ''))
+      return dateCompare || toNumber(a.id) - toNumber(b.id)
+    })
+    .map((item) => {
+      const mileage = toNumber(item.mileage)
+      let distance = toNumber(item.distance_since_previous)
+
+      if (!distance && previousMileage !== null && mileage > previousMileage) {
+        distance = mileage - previousMileage
+      }
+
+      if (mileage > 0) {
+        previousMileage = mileage
+      }
+
+      return {
+        ...item,
+        effectiveDistance: distance
+      }
+    })
+}
+
 export const buildFuelConsumptionChart = (filteredFuelLogs) => {
-  const grouped = filteredFuelLogs.reduce((acc, item) => {
-    if (!item.fuel_consumption) return acc
+  const grouped = fuelLogsWithEffectiveDistance(filteredFuelLogs).reduce((acc, item) => {
+    const distance = toNumber(item.effectiveDistance)
+    const liters = toNumber(item.liters)
+    const fallbackConsumption = toNumber(item.fuel_consumption)
+
+    if ((!distance || !liters) && !fallbackConsumption) return acc
 
     const monthKey = String(item.date).slice(0, 7)
 
     if (!acc[monthKey]) {
-      acc[monthKey] = { total: 0, count: 0 }
+      acc[monthKey] = { liters: 0, distance: 0, fallbackTotal: 0, fallbackCount: 0 }
     }
 
-    acc[monthKey].total += Number(item.fuel_consumption)
-    acc[monthKey].count += 1
+    if (distance > 0 && liters > 0) {
+      acc[monthKey].liters += liters
+      acc[monthKey].distance += distance
+    } else {
+      acc[monthKey].fallbackTotal += fallbackConsumption
+      acc[monthKey].fallbackCount += 1
+    }
 
     return acc
   }, {})
@@ -18,7 +56,10 @@ export const buildFuelConsumptionChart = (filteredFuelLogs) => {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([label, value]) => ({
       label,
-      value: value.total / value.count
+      value:
+        value.distance > 0
+          ? (value.liters / value.distance) * 100
+          : value.fallbackTotal / value.fallbackCount
     }))
 }
 
@@ -28,8 +69,8 @@ export const buildFuelConsumptionData = (fuelConsumptionChart) => ({
     {
       label: 'L/100km',
       data: fuelConsumptionChart.map((item) => item.value),
-      borderColor: '#c81e1e',
-      backgroundColor: 'rgba(227, 0, 0, 0.08)',
+      borderColor: '#9f1d2d',
+      backgroundColor: 'rgba(159, 29, 45, 0.08)',
       tension: 0.35,
       fill: true
     }
@@ -43,7 +84,7 @@ export const buildMonthlyExpenseData = (monthlyExpenseChart, t) => ({
       type: 'bar',
       label: t('dashboard.fuelLogs'),
       data: monthlyExpenseChart.map((item) => item.fuel),
-      backgroundColor: 'rgba(227, 0, 0, 0.75)'
+      backgroundColor: 'rgba(159, 29, 45, 0.75)'
     },
     {
       type: 'bar',

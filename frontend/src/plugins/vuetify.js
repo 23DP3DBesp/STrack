@@ -6,11 +6,11 @@ import '@mdi/font/css/materialdesignicons.css'
 const light = {
   dark: false,
   colors: {
-    background: '#f4f4f6',
+    background: '#f5f6f8',
     surface: '#ffffff',
-    primary: '#111827',
+    primary: '#9f1d2d',
     secondary: '#6b7280',
-    accent: '#e30000',
+    accent: '#9f1d2d',
     error: '#c62828',
     info: '#2563eb',
     success: '#15803d',

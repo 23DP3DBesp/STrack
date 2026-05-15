@@ -77,7 +77,90 @@ class CarTrackerApiTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonPath('price_per_liter', '1.700')
+            ->assertJsonPath('distance_since_previous', 450)
             ->assertJsonPath('fuel_consumption', '7.78');
+    }
+
+    public function test_fuel_log_mileage_must_fit_between_neighboring_logs(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $car = Car::query()->create([
+            'user_id' => $user->id,
+            'brand' => 'Mazda',
+            'model' => '3',
+            'year' => 2022,
+            'engine_volume' => 2.0,
+            'license_plate' => 'MID-123',
+        ]);
+
+        FuelLog::query()->create([
+            'car_id' => $car->id,
+            'date' => '2026-04-01',
+            'liters' => 40.00,
+            'total_price' => 64.00,
+            'price_per_liter' => 1.600,
+            'mileage' => 50000,
+            'fuel_consumption' => null,
+        ]);
+
+        FuelLog::query()->create([
+            'car_id' => $car->id,
+            'date' => '2026-04-20',
+            'liters' => 35.00,
+            'total_price' => 59.50,
+            'price_per_liter' => 1.700,
+            'mileage' => 50500,
+            'fuel_consumption' => 7.00,
+        ]);
+
+        $response = $this->postJson("/api/cars/{$car->id}/fuel-logs", [
+            'date' => '2026-04-10',
+            'liters' => 20,
+            'total_price' => 32,
+            'mileage' => 50600,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('mileage');
+    }
+
+    public function test_user_can_filter_fuel_logs_by_date_range(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $car = Car::query()->create([
+            'user_id' => $user->id,
+            'brand' => 'Toyota',
+            'model' => 'Corolla',
+            'year' => 2021,
+            'engine_volume' => 1.8,
+            'license_plate' => 'FUEL-1',
+        ]);
+
+        foreach ([
+            ['date' => '2026-04-01', 'mileage' => 10000],
+            ['date' => '2026-04-12', 'mileage' => 10400],
+            ['date' => '2026-04-25', 'mileage' => 10900],
+        ] as $index => $item) {
+            FuelLog::query()->create([
+                'car_id' => $car->id,
+                'date' => $item['date'],
+                'liters' => 30.00,
+                'total_price' => 45.00,
+                'price_per_liter' => 1.500,
+                'mileage' => $item['mileage'],
+                'fuel_consumption' => $index === 0 ? null : 7.50,
+            ]);
+        }
+
+        $response = $this->getJson("/api/cars/{$car->id}/fuel-logs?date_from=2026-04-10&date_to=2026-04-20");
+
+        $response->assertOk()
+            ->assertJsonCount(1)
+            ->assertJsonPath('0.date', '2026-04-12');
     }
 
     public function test_user_can_filter_repairs_by_date_range(): void

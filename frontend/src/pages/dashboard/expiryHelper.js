@@ -15,8 +15,8 @@ export const getExpiryStatus = (expiryDate) => {
   return 'valid'
 }
 
-export const getExpiryMessage = (expiryDate, label = 'Item') => {
-  if (!expiryDate) return `${label} date not set`
+export const getExpiryMessage = (expiryDate, label = 'Item', t = null) => {
+  if (!expiryDate) return t ? t('dashboard.expiryDateMissing', { label }) : `${label} date not set`
 
   const now = new Date()
   const expiry = new Date(expiryDate)
@@ -26,11 +26,21 @@ export const getExpiryMessage = (expiryDate, label = 'Item') => {
   const day = String(expiry.getDate()).padStart(2, '0')
   const dateStr = `${day}.${month}.${year}`
 
-  if (daysUntil < 0) return `${label} expired ${Math.abs(daysUntil)} days ago`
-  if (daysUntil === 0) return `${label} expires today!`
-  if (daysUntil === 1) return `${label} expires tomorrow`
-  if (daysUntil <= 30) return `${label} expires in ${daysUntil} days (${dateStr})`
-  return `${label} valid until ${dateStr}`
+  if (!t) {
+    if (daysUntil < 0) return `${label} expired ${Math.abs(daysUntil)} days ago`
+    if (daysUntil === 0) return `${label} expires today!`
+    if (daysUntil === 1) return `${label} expires tomorrow`
+    if (daysUntil <= 30) return `${label} expires in ${daysUntil} days (${dateStr})`
+    return `${label} valid until ${dateStr}`
+  }
+
+  if (daysUntil < 0) {
+    return t('dashboard.expiryExpired', { label, days: Math.abs(daysUntil) })
+  }
+  if (daysUntil === 0) return t('dashboard.expiryToday', { label })
+  if (daysUntil === 1) return t('dashboard.expiryTomorrow', { label })
+  if (daysUntil <= 30) return t('dashboard.expirySoon', { label, days: daysUntil, date: dateStr })
+  return t('dashboard.expiryValidUntil', { label, date: dateStr })
 }
 
 export const getDefaultExpiryDate = (daysFromNow = 365) => {

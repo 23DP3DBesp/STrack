@@ -20,6 +20,8 @@ class FuelLogController extends Controller
 
         $logs = $car->fuelLogs()
             ->when($request->filled('date'), fn ($query) => $query->whereDate('date', (string) $request->query('date')))
+            ->when($request->filled('date_from'), fn ($query) => $query->whereDate('date', '>=', (string) $request->query('date_from')))
+            ->when($request->filled('date_to'), fn ($query) => $query->whereDate('date', '<=', (string) $request->query('date_to')))
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->get();
@@ -89,6 +91,29 @@ class FuelLogController extends Controller
             ]);
         }
 
+        $nextLog = $car->fuelLogs()
+            ->when($existing, fn ($query) => $query->whereKeyNot($existing->id))
+            ->where(function ($query) use ($validated, $existing) {
+                $query->whereDate('date', '>', $validated['date'])
+                    ->orWhere(function ($sameDate) use ($validated, $existing) {
+                        $sameDate->whereDate('date', $validated['date']);
+                        if ($existing) {
+                            $sameDate->where('id', '>', $existing->id);
+                        } else {
+                            $sameDate->whereRaw('1 = 0');
+                        }
+                    });
+            })
+            ->orderBy('date')
+            ->orderBy('id')
+            ->first();
+
+        if ($nextLog && $mileage >= (int) $nextLog->mileage) {
+            throw ValidationException::withMessages([
+                'mileage' => ['Mileage must be lower than the next fuel log for this car.'],
+            ]);
+        }
+
         $distance = $previousLog ? $mileage - (int) $previousLog->mileage : null;
         $fuelConsumption = $distance && $distance > 0 ? round(($liters / $distance) * 100, 2) : null;
 
@@ -98,6 +123,7 @@ class FuelLogController extends Controller
             'total_price' => round($totalPrice, 2),
             'price_per_liter' => round($totalPrice / $liters, 3),
             'mileage' => $mileage,
+            'distance_since_previous' => $distance,
             'fuel_consumption' => $fuelConsumption,
         ];
     }
@@ -113,6 +139,7 @@ class FuelLogController extends Controller
             ->orderBy('id')
             ->get()
             ->each(function (FuelLog $fuelLog) use (&$previousMileage) {
+                $distance = null;
                 $consumption = null;
 
                 if ($previousMileage !== null && (int) $fuelLog->mileage > $previousMileage) {
@@ -121,6 +148,7 @@ class FuelLogController extends Controller
                 }
 
                 $fuelLog->updateQuietly([
+                    'distance_since_previous' => $distance,
                     'fuel_consumption' => $consumption,
                 ]);
 

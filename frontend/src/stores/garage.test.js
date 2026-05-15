@@ -100,4 +100,46 @@ describe('garage period filtered metrics', () => {
       total_spent: 100
     })
   })
+
+  it('uses recorded distance for cost per km and weighted fuel consumption', () => {
+    setActivePinia(createPinia())
+
+    const garage = useGarageStore()
+
+    garage.fuelLogs = [
+      {
+        id: 1,
+        date: '2026-05-01',
+        liters: '10.00',
+        total_price: '20.00',
+        mileage: 1000,
+        distance_since_previous: null,
+        fuel_consumption: null
+      },
+      {
+        id: 2,
+        date: '2026-05-08',
+        liters: '20.00',
+        total_price: '40.00',
+        mileage: 1200,
+        distance_since_previous: 200,
+        fuel_consumption: '10.00'
+      },
+      {
+        id: 3,
+        date: '2026-05-15',
+        liters: '20.00',
+        total_price: '40.00',
+        mileage: 1800,
+        distance_since_previous: 600,
+        fuel_consumption: '3.33'
+      }
+    ]
+
+    garage.selectedPeriod = 'all'
+
+    expect(garage.totalDistanceTracked).toBe(800)
+    expect(garage.costPerKm).toBe(0.125)
+    expect(garage.averageFuelConsumption).toBe(5)
+  })
 })

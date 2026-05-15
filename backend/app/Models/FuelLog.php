@@ -22,6 +22,7 @@ class FuelLog extends Model
         'total_price',
         'price_per_liter',
         'mileage',
+        'distance_since_previous',
         'fuel_consumption',
     ];
 
@@ -33,6 +34,7 @@ class FuelLog extends Model
             'total_price' => 'decimal:2',
             'price_per_liter' => 'decimal:3',
             'mileage' => 'integer',
+            'distance_since_previous' => 'integer',
             'fuel_consumption' => 'decimal:2',
         ];
     }

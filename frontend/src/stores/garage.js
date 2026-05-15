@@ -76,6 +76,33 @@ const filterBySelectedPeriod = (items, period, dateField) => {
   })
 }
 
+const fuelLogsWithEffectiveDistance = (items) => {
+  let previousMileage = null
+
+  return [...items]
+    .sort((a, b) => {
+      const dateCompare = String(a.date || '').localeCompare(String(b.date || ''))
+      return dateCompare || toNumber(a.id) - toNumber(b.id)
+    })
+    .map((item) => {
+      const mileage = toNumber(item.mileage)
+      let distance = toNumber(item.distance_since_previous)
+
+      if (!distance && previousMileage !== null && mileage > previousMileage) {
+        distance = mileage - previousMileage
+      }
+
+      if (mileage > 0) {
+        previousMileage = mileage
+      }
+
+      return {
+        ...item,
+        effectiveDistance: distance
+      }
+    })
+}
+
 export const useGarageStore = defineStore('garage', {
   state: () => ({
     summary: {
@@ -105,7 +132,8 @@ export const useGarageStore = defineStore('garage', {
     mods: [],
 
     fuelFilters: {
-      date: ''
+      date_from: '',
+      date_to: ''
     },
 
     repairFilters: {
@@ -175,14 +203,25 @@ export const useGarageStore = defineStore('garage', {
     totalDistanceTracked() {
       if (this.filteredFuelLogs.length < 2) return 0
 
+      const recordedDistance = this.filteredFuelLogs.reduce(
+        (sum, item) => sum + toNumber(item.distance_since_previous),
+        0
+      )
+
+      const effectiveDistance = fuelLogsWithEffectiveDistance(this.filteredFuelLogs).reduce(
+        (sum, item) => sum + toNumber(item.effectiveDistance),
+        0
+      )
+
       const mileages = this.filteredFuelLogs
         .map((item) => toNumber(item.mileage))
         .filter((value) => value > 0)
         .sort((a, b) => a - b)
 
-      if (mileages.length < 2) return 0
+      const mileageRange =
+        mileages.length >= 2 ? Math.max(0, mileages[mileages.length - 1] - mileages[0]) : 0
 
-      return Math.max(0, mileages[mileages.length - 1] - mileages[0])
+      return Math.max(recordedDistance, effectiveDistance, mileageRange)
     },
 
     costPerKm() {
@@ -192,6 +231,25 @@ export const useGarageStore = defineStore('garage', {
     },
 
     averageFuelConsumption() {
+      const totals = fuelLogsWithEffectiveDistance(this.filteredFuelLogs).reduce(
+        (acc, item) => {
+          const distance = toNumber(item.effectiveDistance)
+          const liters = toNumber(item.liters)
+
+          if (distance > 0 && liters > 0) {
+            acc.distance += distance
+            acc.liters += liters
+          }
+
+          return acc
+        },
+        { distance: 0, liters: 0 }
+      )
+
+      if (totals.distance > 0) {
+        return (totals.liters / totals.distance) * 100
+      }
+
       const entries = this.filteredFuelLogs.filter((item) => item.fuel_consumption != null)
       if (!entries.length) return 0
 
@@ -229,22 +287,12 @@ export const useGarageStore = defineStore('garage', {
         grouped[key].total += toNumber(item.cost)
       })
 
-      const result = Object.entries(grouped)
+      return Object.entries(grouped)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([month, values]) => ({
           month,
           ...values
         }))
-
-      console.log('📊 monthlyExpenseBreakdown computed:', {
-        fuelLogs: this.filteredFuelLogs.length,
-        repairs: this.filteredRepairs.length,
-        mods: this.filteredMods.length,
-        result: result.length,
-        data: result
-      })
-
-      return result
     },
 
     filteredStats() {
@@ -302,7 +350,7 @@ export const useGarageStore = defineStore('garage', {
       this.fuelLogs = []
       this.repairs = []
       this.mods = []
-      this.fuelFilters = { date: '' }
+      this.fuelFilters = { date_from: '', date_to: '' }
       this.repairFilters = { date_from: '', date_to: '' }
     },
 
@@ -441,7 +489,8 @@ export const useGarageStore = defineStore('garage', {
       if (!this.selectedCarId) return
 
       this.fuelFilters = {
-        date: filters?.date || ''
+        date_from: filters?.date_from || '',
+        date_to: filters?.date_to || ''
       }
 
       try {

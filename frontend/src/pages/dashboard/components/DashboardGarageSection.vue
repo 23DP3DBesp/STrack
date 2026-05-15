@@ -1,5 +1,5 @@
 <template>
-  <section class="work-grid-dashboard mt-4">
+  <section id="garage" class="work-grid-dashboard mt-4">
     <article class="work-panel">
       <div class="work-panel-head">
         <div>
@@ -114,11 +114,17 @@
         </v-tabs>
 
         <v-window v-model="activeTab" class="mt-4">
-          <v-window-item value="fuel">
+          <v-window-item value="fuel" id="fuel">
             <div class="toolbar-line filters">
               <DateInput
-                v-model="fuelFilters.date"
-                :label="t('dashboard.fuelingDate')"
+                v-model="fuelFilters.date_from"
+                :label="t('dashboard.fuelingDateFrom')"
+                :placeholder="t('dashboard.selectFuelingDate')"
+              />
+
+              <DateInput
+                v-model="fuelFilters.date_to"
+                :label="t('dashboard.fuelingDateTo')"
                 :placeholder="t('dashboard.selectFuelingDate')"
               />
 
@@ -192,11 +198,17 @@
             </div>
           </v-window-item>
 
-          <v-window-item value="repairs">
+          <v-window-item value="repairs" id="repairs">
             <div class="toolbar-line filters">
               <DateInput
                 v-model="repairFilters.date_from"
                 :label="t('dashboard.repairDateFrom')"
+                :placeholder="t('dashboard.selectRepairDate')"
+              />
+
+              <DateInput
+                v-model="repairFilters.date_to"
+                :label="t('dashboard.repairDateTo')"
                 :placeholder="t('dashboard.selectRepairDate')"
               />
 
@@ -323,7 +335,7 @@ const activeTab = defineModel('activeTab', { type: String, default: 'fuel' })
 const carSearch = defineModel('carSearch', { type: String, default: '' })
 const fuelFilters = defineModel('fuelFilters', {
   type: Object,
-  default: () => ({ date: '' })
+  default: () => ({ date_from: '', date_to: '' })
 })
 const repairFilters = defineModel('repairFilters', {
   type: Object,

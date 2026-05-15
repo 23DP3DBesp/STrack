@@ -4,13 +4,9 @@
       <div class="work-topbar-in">
         <button class="work-brand" type="button" @click="goDashboard">Car Tracker</button>
 
-        <nav class="work-links">
+        <nav class="work-links top-nav-links">
           <button class="work-link" type="button" @click="goDashboard">
             {{ t('nav.dashboard') }}
-          </button>
-
-          <button class="work-link" type="button" @click="goProfile">
-            {{ t('nav.profile') }}
           </button>
         </nav>
 
@@ -36,9 +32,29 @@
     </header>
 
     <v-main>
-      <div class="work-bg">
-        <div class="work-page-shell">
-          <slot />
+      <div class="work-bg app-workspace">
+        <aside class="work-sidebar" aria-label="App navigation">
+          <button class="side-link" type="button" @click="goDashboard">
+            {{ t('nav.dashboard') }}
+          </button>
+          <button class="side-link" type="button" @click="goDashboardSection('garage')">
+            {{ t('nav.garage') }}
+          </button>
+          <button class="side-link" type="button" @click="goDashboardSection('fuel')">
+            {{ t('dashboard.fuelTab') }}
+          </button>
+          <button class="side-link" type="button" @click="goDashboardSection('repairs')">
+            {{ t('dashboard.repairsTab') }}
+          </button>
+          <button class="side-link" type="button" @click="goProfile">
+            {{ t('nav.profile') }}
+          </button>
+        </aside>
+
+        <div class="work-content">
+          <div class="work-page-shell">
+            <slot />
+          </div>
         </div>
       </div>
     </v-main>
@@ -60,6 +76,10 @@ const currentLocale = computed(() => locale.value)
 
 const goDashboard = () => {
   router.push({ name: 'dashboard' })
+}
+
+const goDashboardSection = (section) => {
+  router.push({ name: 'dashboard', hash: `#${section}` })
 }
 
 const goProfile = () => {

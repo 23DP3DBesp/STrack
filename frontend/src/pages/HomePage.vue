@@ -16,8 +16,8 @@
     </header>
 
     <main class="landing-shell">
-      <section class="hero-panel home-hero-panel">
-        <div class="hero-copy">
+      <section class="home-hero-panel">
+        <div class="hero-copy home-hero-copy">
           <div class="work-kicker">{{ t('home.kicker') }}</div>
           <h1 class="hero-title">{{ t('home.title') }}</h1>
           <p class="hero-subtitle">
@@ -35,26 +35,48 @@
           </div>
         </div>
 
-        <div class="hero-stat-grid">
-          <article class="hero-stat-card">
-            <span class="hero-stat-label">{{ t('home.cards.cars.label') }}</span>
-            <strong>{{ t('home.cards.cars.value') }}</strong>
+        <div class="home-preview-panel">
+          <div class="preview-head">
+            <div>
+              <span class="hero-stat-label">{{ t('home.preview.label') }}</span>
+              <strong>{{ t('home.preview.title') }}</strong>
+            </div>
+            <span class="preview-badge">{{ t('home.preview.status') }}</span>
+          </div>
+
+          <div class="preview-metrics">
+            <article>
+              <span>{{ t('dashboard.totalSpend') }}</span>
+              <strong>€1 284</strong>
+            </article>
+            <article>
+              <span>{{ t('dashboard.costPerKm') }}</span>
+              <strong>€0.18</strong>
+            </article>
+            <article>
+              <span>{{ t('dashboard.fuelLogs') }}</span>
+              <strong>24</strong>
+            </article>
+          </div>
+
+          <article class="preview-row">
+            <span>{{ t('dashboard.insurance') }}</span>
+            <strong>12.09.2026</strong>
           </article>
 
-          <article class="hero-stat-card">
-            <span class="hero-stat-label">{{ t('home.cards.fuel.label') }}</span>
-            <strong>{{ t('home.cards.fuel.value') }}</strong>
+          <article class="preview-row warning">
+            <span>{{ t('dashboard.technicalInspection') }}</span>
+            <strong>{{ t('home.preview.soon') }}</strong>
           </article>
 
-          <article class="hero-stat-card">
-            <span class="hero-stat-label">{{ t('home.cards.repairs.label') }}</span>
-            <strong>{{ t('home.cards.repairs.value') }}</strong>
-          </article>
-
-          <article class="hero-stat-card">
-            <span class="hero-stat-label">{{ t('home.cards.mods.label') }}</span>
-            <strong>{{ t('home.cards.mods.value') }}</strong>
-          </article>
+          <div class="preview-chart" aria-hidden="true">
+            <span style="height: 36%"></span>
+            <span style="height: 58%"></span>
+            <span style="height: 44%"></span>
+            <span style="height: 72%"></span>
+            <span style="height: 64%"></span>
+            <span style="height: 86%"></span>
+          </div>
         </div>
       </section>
     </main>

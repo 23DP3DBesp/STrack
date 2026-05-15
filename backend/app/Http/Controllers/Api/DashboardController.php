@@ -159,14 +159,22 @@ class DashboardController extends Controller
                 continue;
             }
 
-            $byCar[$carId] ??= ['min' => $mileage, 'max' => $mileage];
+            $byCar[$carId] ??= ['min' => $mileage, 'max' => $mileage, 'distance' => 0];
             $byCar[$carId]['min'] = min($byCar[$carId]['min'], $mileage);
             $byCar[$carId]['max'] = max($byCar[$carId]['max'], $mileage);
+
+            $recordedDistance = (int) ($fuelLog->distance_since_previous ?? 0);
+            if ($recordedDistance > 0) {
+                $byCar[$carId]['distance'] += $recordedDistance;
+            }
         }
 
         return array_reduce(
             $byCar,
-            fn (int $sum, array $range) => $sum + max(0, $range['max'] - $range['min']),
+            fn (int $sum, array $range) => $sum + max(
+                (int) $range['distance'],
+                max(0, $range['max'] - $range['min'])
+            ),
             0
         );
     }
