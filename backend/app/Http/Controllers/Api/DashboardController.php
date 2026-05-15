@@ -17,6 +17,8 @@ class DashboardController extends Controller
     {
         $userId = (int) $request->user()->id;
         $currentMonth = now()->format('Y-m');
+        $period = (string) $request->query('period', 'all');
+        $periodStart = $this->periodStartDate($period);
 
         $carsCount = Car::query()
             ->where('user_id', $userId)
@@ -25,6 +27,7 @@ class DashboardController extends Controller
         $fuelLogs = FuelLog::query()
             ->with('car:id,brand,model,user_id')
             ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
+            ->when($periodStart, fn ($query) => $query->whereDate('date', '>=', $periodStart))
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->get();
@@ -32,6 +35,7 @@ class DashboardController extends Controller
         $repairs = Repair::query()
             ->with('car:id,brand,model,user_id')
             ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
+            ->when($periodStart, fn ($query) => $query->whereDate('date', '>=', $periodStart))
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->get();
@@ -39,6 +43,7 @@ class DashboardController extends Controller
         $mods = Mod::query()
             ->with('car:id,brand,model,user_id')
             ->whereHas('car', fn ($query) => $query->where('user_id', $userId))
+            ->when($periodStart, fn ($query) => $query->whereDate('date_installed', '>=', $periodStart))
             ->orderByDesc('date_installed')
             ->orderByDesc('id')
             ->get();
@@ -46,6 +51,8 @@ class DashboardController extends Controller
         $fuelSpend = round((float) $fuelLogs->sum(fn ($item) => (float) $item->total_price), 2);
         $repairSpend = round((float) $repairs->sum(fn ($item) => (float) $item->cost), 2);
         $modSpend = round((float) $mods->sum(fn ($item) => (float) $item->cost), 2);
+        $totalSpend = round($fuelSpend + $repairSpend + $modSpend, 2);
+        $distanceTracked = $this->distanceTracked($fuelLogs);
 
         $monthly = [];
 
@@ -97,7 +104,9 @@ class DashboardController extends Controller
                 'fuel_logs_total' => $fuelLogs->count(),
                 'repairs_total' => $repairs->count(),
                 'mods_total' => $mods->count(),
-                'total_spent' => round($fuelSpend + $repairSpend + $modSpend, 2),
+                'total_spent' => $totalSpend,
+                'distance_tracked' => $distanceTracked,
+                'cost_per_km' => $distanceTracked > 0 ? round($totalSpend / $distanceTracked, 2) : 0,
             ],
             'fleet_cost_by_category' => [
                 'fuel' => $fuelSpend,
@@ -116,6 +125,46 @@ class DashboardController extends Controller
             'recent_mods' => $mods->take(5)->values(),
             'upcoming_costs' => $upcomingCosts,
         ]);
+    }
+
+    private function periodStartDate(string $period): ?string
+    {
+        if ($period === 'all') {
+            return null;
+        }
+
+        $months = match ($period) {
+            '3m' => 3,
+            '6m' => 6,
+            '12m' => 12,
+            default => null,
+        };
+
+        return $months ? now()->startOfDay()->subMonthsNoOverflow($months)->toDateString() : null;
+    }
+
+    private function distanceTracked(iterable $fuelLogs): int
+    {
+        $byCar = [];
+
+        foreach ($fuelLogs as $fuelLog) {
+            $carId = (int) $fuelLog->car_id;
+            $mileage = (int) $fuelLog->mileage;
+
+            if ($mileage <= 0) {
+                continue;
+            }
+
+            $byCar[$carId] ??= ['min' => $mileage, 'max' => $mileage];
+            $byCar[$carId]['min'] = min($byCar[$carId]['min'], $mileage);
+            $byCar[$carId]['max'] = max($byCar[$carId]['max'], $mileage);
+        }
+
+        return array_reduce(
+            $byCar,
+            fn (int $sum, array $range) => $sum + max(0, $range['max'] - $range['min']),
+            0
+        );
     }
 
     private function addMonthlyAmount(array &$monthly, string $month, string $field, float $amount): void

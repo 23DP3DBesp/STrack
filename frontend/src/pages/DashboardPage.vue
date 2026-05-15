@@ -347,7 +347,6 @@ const activeTab = ref('fuel')
 const carSearch = ref('')
 const fuelFilters = ref({ date: '' })
 const repairFilters = ref({ date_from: '', date_to: '' })
-const periodFilter = ref('all')
 
 const carDialog = ref(false)
 const expiryDialog = ref(false)
@@ -371,6 +370,7 @@ const savingMod = ref(false)
 const saveError = ref('')
 
 const selectedCar = computed(() => garage.selectedCar)
+const periodFilter = computed(() => garage.selectedPeriod)
 
 const periodOptions = {
   all: 'All time',
@@ -422,30 +422,10 @@ const filteredFuelLogs = computed(() =>
   garage.fuelLogs.filter((item) => isInSelectedPeriod(item.date))
 )
 
-const filteredRepairs = computed(() => garage.repairs.filter((item) => isInSelectedPeriod(item.date)))
-
-const filteredMods = computed(() =>
-  garage.mods.filter((item) => isInSelectedPeriod(item.date_installed))
-)
-
-const sumBy = (items, field) => items.reduce((sum, item) => sum + Number(item[field] || 0), 0)
-
-const overviewTotalSpend = computed(
-  () =>
-    sumBy(filteredFuelLogs.value, 'total_price') +
-    sumBy(filteredRepairs.value, 'cost') +
-    sumBy(filteredMods.value, 'cost')
-)
+const overviewTotalSpend = computed(() => Number(garage.summary.stats.total_spent || 0))
 
 const overviewDistanceTracked = computed(() => {
-  const mileages = filteredFuelLogs.value
-    .map((item) => Number(item.mileage || 0))
-    .filter((value) => value > 0)
-    .sort((a, b) => a - b)
-
-  if (mileages.length < 2) return 0
-
-  return Math.max(0, mileages[mileages.length - 1] - mileages[0])
+  return Number(garage.summary.stats.distance_tracked || 0)
 })
 
 const overviewCostPerKm = computed(() => {
@@ -456,9 +436,9 @@ const overviewCostPerKm = computed(() => {
 
 const overviewStats = computed(() => ({
   cars_total: garage.summary.stats.cars_total,
-  fuel_logs_total: filteredFuelLogs.value.length,
-  repairs_total: filteredRepairs.value.length,
-  mods_total: filteredMods.value.length,
+  fuel_logs_total: garage.summary.stats.fuel_logs_total,
+  repairs_total: garage.summary.stats.repairs_total,
+  mods_total: garage.summary.stats.mods_total,
   total_spent: overviewTotalSpend.value
 }))
 
@@ -466,24 +446,7 @@ const periodFilterLabel = computed(() => periodOptions[periodFilter.value] || pe
 
 const fuelConsumptionChart = computed(() => buildFuelConsumptionChart(filteredFuelLogs.value))
 
-const monthlyExpenseChart = computed(() => {
-  const grouped = {}
-
-  const addAmount = (date, field, amount) => {
-    const month = String(date || '').slice(0, 7)
-    if (!month) return
-
-    grouped[month] ??= { month, fuel: 0, repairs: 0, mods: 0, total: 0 }
-    grouped[month][field] += Number(amount || 0)
-    grouped[month].total += Number(amount || 0)
-  }
-
-  filteredFuelLogs.value.forEach((item) => addAmount(item.date, 'fuel', item.total_price))
-  filteredRepairs.value.forEach((item) => addAmount(item.date, 'repairs', item.cost))
-  filteredMods.value.forEach((item) => addAmount(item.date_installed, 'mods', item.cost))
-
-  return Object.values(grouped).sort((a, b) => a.month.localeCompare(b.month))
-})
+const monthlyExpenseChart = computed(() => garage.summary.fleet_monthly_breakdown || [])
 
 const fuelConsumptionData = computed(() => buildFuelConsumptionData(fuelConsumptionChart.value))
 
@@ -506,8 +469,8 @@ const fuelPricePerLiter = computed(() => {
   return liters > 0 ? (price / liters).toFixed(2) : ''
 })
 
-const setPeriodFilter = (period) => {
-  periodFilter.value = period
+const setPeriodFilter = async (period) => {
+  await garage.setSelectedPeriod(period)
 }
 
 onMounted(async () => {

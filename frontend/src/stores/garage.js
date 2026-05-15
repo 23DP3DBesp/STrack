@@ -6,7 +6,9 @@ const emptyStats = () => ({
   fuel_logs_total: 0,
   repairs_total: 0,
   mods_total: 0,
-  total_spent: 0
+  total_spent: 0,
+  distance_tracked: 0,
+  cost_per_km: 0
 })
 
 const toNumber = (value) => Number(value || 0)
@@ -288,10 +290,9 @@ export const useGarageStore = defineStore('garage', {
       this.error = error?.response?.data?.message || error?.message || fallbackMessage
     },
 
-    setSelectedPeriod(period) {
-      console.log('⏱️  setSelectedPeriod called:', this.selectedPeriod, '->', period)
+    async setSelectedPeriod(period) {
       this.selectedPeriod = period
-      console.log('⏱️  setSelectedPeriod done, new value:', this.selectedPeriod)
+      await this.fetchSummary()
     },
 
     resetSelectedCarState() {
@@ -308,12 +309,14 @@ export const useGarageStore = defineStore('garage', {
       await Promise.all([this.fetchSummary(), this.fetchCars()])
     },
 
-    async fetchSummary() {
+    async fetchSummary(period = this.selectedPeriod) {
       this.summaryLoading = true
       this.clearError()
 
       try {
-        const { data } = await api.get('/dashboard/summary')
+        const { data } = await api.get('/dashboard/summary', {
+          params: { period }
+        })
 
         this.summary = {
           stats: { ...emptyStats(), ...(data?.stats || {}) },
