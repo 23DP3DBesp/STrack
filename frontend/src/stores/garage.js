@@ -15,6 +15,8 @@ const toNumber = (value) => Number(value || 0)
 
 const monthKeyFromDate = (value) => String(value || '').slice(0, 7)
 
+const isMissingResourceError = (error) => error?.response?.status === 404
+
 export const parseLocalDate = (value) => {
   if (!value) return null
 
@@ -354,6 +356,28 @@ export const useGarageStore = defineStore('garage', {
       this.repairFilters = { date_from: '', date_to: '' }
     },
 
+    ensureSelectedCarExists() {
+      if (!this.selectedCarId) return false
+
+      if (this.cars.length && !this.selectedCar) {
+        this.selectedCarId = this.cars[0].id
+      }
+
+      return Boolean(this.selectedCarId)
+    },
+
+    async recoverMissingSelectedCar(error) {
+      if (!isMissingResourceError(error)) return false
+
+      await this.fetchCars(this.search, { reloadSelected: false })
+
+      if (!this.cars.length) {
+        this.resetSelectedCarState()
+      }
+
+      return true
+    },
+
     async bootstrap() {
       this.clearError()
       await Promise.all([this.fetchSummary(), this.fetchCars()])
@@ -437,7 +461,7 @@ export const useGarageStore = defineStore('garage', {
     },
 
     async fetchSelectedCarData(filters = {}) {
-      if (!this.selectedCarId) return
+      if (!this.ensureSelectedCarExists()) return
 
       this.recordsLoading = true
       this.clearError()
@@ -486,7 +510,7 @@ export const useGarageStore = defineStore('garage', {
     },
 
     async fetchFuelLogs(filters = this.fuelFilters) {
-      if (!this.selectedCarId) return
+      if (!this.ensureSelectedCarExists()) return
 
       this.fuelFilters = {
         date_from: filters?.date_from || '',
@@ -500,6 +524,8 @@ export const useGarageStore = defineStore('garage', {
 
         this.fuelLogs = Array.isArray(data) ? data : []
       } catch (error) {
+        if (await this.recoverMissingSelectedCar(error)) return
+
         this.setError(error, 'Failed to load fuel logs')
         throw error
       }
@@ -546,7 +572,7 @@ export const useGarageStore = defineStore('garage', {
     },
 
     async fetchRepairs(filters = this.repairFilters) {
-      if (!this.selectedCarId) return
+      if (!this.ensureSelectedCarExists()) return
 
       this.repairFilters = {
         date_from: filters?.date_from || '',
@@ -560,6 +586,8 @@ export const useGarageStore = defineStore('garage', {
 
         this.repairs = Array.isArray(data) ? data : []
       } catch (error) {
+        if (await this.recoverMissingSelectedCar(error)) return
+
         this.setError(error, 'Failed to load repairs')
         throw error
       }
@@ -606,12 +634,14 @@ export const useGarageStore = defineStore('garage', {
     },
 
     async fetchMods() {
-      if (!this.selectedCarId) return
+      if (!this.ensureSelectedCarExists()) return
 
       try {
         const { data } = await api.get(`/cars/${this.selectedCarId}/mods`)
         this.mods = Array.isArray(data) ? data : []
       } catch (error) {
+        if (await this.recoverMissingSelectedCar(error)) return
+
         this.setError(error, 'Failed to load mods')
         throw error
       }
