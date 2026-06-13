@@ -48,6 +48,8 @@
               <span>{{ car.fuel_logs_count }} {{ t('dashboard.fuelTab').toLowerCase() }}</span>
               <span>{{ car.repairs_count }} {{ t('dashboard.repairsTab').toLowerCase() }}</span>
               <span>{{ car.mods_count }} {{ t('dashboard.modsTab').toLowerCase() }}</span>
+              <span>{{ car.documents_count }} {{ t('dashboard.documentsTab').toLowerCase() }}</span>
+              <span>{{ car.wishlist_items_count }} {{ t('dashboard.wishlistTab').toLowerCase() }}</span>
             </div>
           </button>
 
@@ -111,6 +113,9 @@
           <v-tab value="fuel">{{ t('dashboard.fuelTab') }}</v-tab>
           <v-tab value="repairs">{{ t('dashboard.repairsTab') }}</v-tab>
           <v-tab value="mods">{{ t('dashboard.modsTab') }}</v-tab>
+          <v-tab value="ownership">{{ t('dashboard.ownershipTab') }}</v-tab>
+          <v-tab value="media">{{ t('dashboard.mediaTab') }}</v-tab>
+          <v-tab value="wishlist">{{ t('dashboard.wishlistTab') }}</v-tab>
         </v-tabs>
 
         <v-window v-model="activeTab" class="mt-4">
@@ -320,6 +325,224 @@
               </v-table>
             </div>
           </v-window-item>
+
+          <v-window-item value="ownership" id="ownership">
+            <div class="work-grid-2">
+              <article class="work-panel">
+                <div class="work-panel-head">
+                  <div>
+                    <h3 class="work-panel-title">{{ t('dashboard.ownershipHistoryTitle') }}</h3>
+                    <div class="work-item-sub">
+                      {{ t('dashboard.ownershipHistorySubtitle') }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="journal-table-wrap">
+                  <v-table class="journal-table">
+                    <thead>
+                      <tr>
+                        <th>{{ t('dashboard.month') }}</th>
+                        <th>{{ t('dashboard.fuelLogs') }}</th>
+                        <th>{{ t('dashboard.repairs') }}</th>
+                        <th>{{ t('dashboard.mods') }}</th>
+                        <th>{{ t('dashboard.totalSpend') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in ownershipHistory" :key="item.month" class="hover-row">
+                        <td>{{ formatMonth(item.month) }}</td>
+                        <td>{{ formatCurrency(item.fuel) }}</td>
+                        <td>{{ formatCurrency(item.repairs) }}</td>
+                        <td>{{ formatCurrency(item.mods) }}</td>
+                        <td>{{ formatCurrency(item.total) }}</td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+
+                  <div v-if="!ownershipHistory.length" class="empty-card">
+                    {{ t('dashboard.noOwnershipHistory') }}
+                  </div>
+                </div>
+              </article>
+
+              <article class="work-panel">
+                <div class="work-panel-head">
+                  <div>
+                    <h3 class="work-panel-title">{{ t('dashboard.recurringCostsTitle') }}</h3>
+                    <div class="work-item-sub">
+                      {{ t('dashboard.recurringCostsSubtitle') }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="journal-table-wrap">
+                  <v-table class="journal-table">
+                    <thead>
+                      <tr>
+                        <th>{{ t('dashboard.name') }}</th>
+                        <th>{{ t('dashboard.cost') }}</th>
+                        <th>{{ t('dashboard.interval') }}</th>
+                        <th>{{ t('dashboard.nextDueDate') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in garage.recurringCosts" :key="item.id" class="hover-row">
+                        <td>{{ item.name }}</td>
+                        <td>{{ formatCurrency(item.amount) }}</td>
+                        <td>{{ formatInterval(item.interval) }}</td>
+                        <td>{{ formatDate(item.next_due_date) }}</td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+
+                  <div v-if="!garage.recurringCosts.length" class="empty-card">
+                    {{ t('dashboard.noRecurringCosts') }}
+                  </div>
+                </div>
+              </article>
+            </div>
+          </v-window-item>
+
+          <v-window-item value="media" id="media">
+            <div class="work-grid-2">
+              <article class="work-panel">
+                <div class="work-panel-head">
+                  <div>
+                    <h3 class="work-panel-title">{{ t('dashboard.photosTitle') }}</h3>
+                    <div class="work-item-sub">{{ t('dashboard.photosSubtitle') }}</div>
+                  </div>
+                </div>
+
+                <div class="journal-table-wrap">
+                  <v-table class="journal-table">
+                    <thead>
+                      <tr>
+                        <th>{{ t('dashboard.name') }}</th>
+                        <th>{{ t('dashboard.type') }}</th>
+                        <th>{{ t('dashboard.actions') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in photoDocuments" :key="item.id" class="hover-row">
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>
+                          <a
+                            class="table-action"
+                            :href="item.file_url"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {{ t('dashboard.openLink') }}
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+
+                  <div v-if="!photoDocuments.length" class="empty-card">
+                    {{ t('dashboard.noPhotos') }}
+                  </div>
+                </div>
+              </article>
+
+              <article class="work-panel">
+                <div class="work-panel-head">
+                  <div>
+                    <h3 class="work-panel-title">{{ t('dashboard.documentsTitle') }}</h3>
+                    <div class="work-item-sub">{{ t('dashboard.documentsSubtitle') }}</div>
+                  </div>
+                </div>
+
+                <div class="journal-table-wrap">
+                  <v-table class="journal-table">
+                    <thead>
+                      <tr>
+                        <th>{{ t('dashboard.name') }}</th>
+                        <th>{{ t('dashboard.type') }}</th>
+                        <th>{{ t('dashboard.actions') }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in regularDocuments" :key="item.id" class="hover-row">
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.type }}</td>
+                        <td>
+                          <a
+                            class="table-action"
+                            :href="item.file_url"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {{ t('dashboard.openLink') }}
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+
+                  <div v-if="!regularDocuments.length" class="empty-card">
+                    {{ t('dashboard.noDocuments') }}
+                  </div>
+                </div>
+              </article>
+            </div>
+          </v-window-item>
+
+          <v-window-item value="wishlist" id="wishlist">
+            <article class="work-panel">
+              <div class="work-panel-head">
+                <div>
+                  <h3 class="work-panel-title">{{ t('dashboard.wishlistTitle') }}</h3>
+                  <div class="work-item-sub">{{ t('dashboard.wishlistSubtitle') }}</div>
+                </div>
+              </div>
+
+              <div class="journal-table-wrap">
+                <v-table class="journal-table">
+                  <thead>
+                    <tr>
+                      <th>{{ t('dashboard.priority') }}</th>
+                      <th>{{ t('dashboard.name') }}</th>
+                      <th>{{ t('dashboard.category') }}</th>
+                      <th>{{ t('dashboard.cost') }}</th>
+                      <th>{{ t('dashboard.status') }}</th>
+                      <th>{{ t('dashboard.actions') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in garage.wishlistItems" :key="item.id" class="hover-row">
+                      <td>{{ priorityLabel(item.priority) }}</td>
+                      <td>
+                        <div>{{ item.name }}</div>
+                        <div class="work-item-sub">{{ item.store || '—' }}</div>
+                      </td>
+                      <td>{{ item.category }}</td>
+                      <td>{{ item.estimated_price ? formatCurrency(item.estimated_price) : '—' }}</td>
+                      <td>{{ formatStatus(item.status) }}</td>
+                      <td>
+                        <a
+                          v-if="item.url"
+                          class="table-action"
+                          :href="item.url"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {{ t('dashboard.openLink') }}
+                        </a>
+                        <span v-else>—</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+
+                <div v-if="!garage.wishlistItems.length" class="empty-card">
+                  {{ t('dashboard.noWishlistItems') }}
+                </div>
+              </div>
+            </article>
+          </v-window-item>
         </v-window>
       </template>
     </article>
@@ -327,6 +550,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import DateInput from '../../../components/DateInput.vue'
 import { formatCurrency, formatDate } from '../formatters'
@@ -342,7 +566,7 @@ const repairFilters = defineModel('repairFilters', {
   default: () => ({ date_from: '', date_to: '' })
 })
 
-defineProps({
+const props = defineProps({
   garage: {
     type: Object,
     required: true
@@ -372,6 +596,47 @@ const emit = defineEmits([
 ])
 
 const { t } = useI18n()
+
+const ownershipHistory = computed(() => props.garage.monthlyExpenseBreakdown || [])
+
+const photoTypeKeywords = ['photo', 'photos', 'image', 'images', 'gallery', 'picture', 'pictures']
+
+const isPhotoDocument = (item) => {
+  const type = String(item?.type || '').toLowerCase()
+  const title = String(item?.title || '').toLowerCase()
+
+  return photoTypeKeywords.some((keyword) => type.includes(keyword) || title.includes(keyword))
+}
+
+const photoDocuments = computed(() => (props.garage.documents || []).filter(isPhotoDocument))
+
+const regularDocuments = computed(() =>
+  (props.garage.documents || []).filter((item) => !isPhotoDocument(item))
+)
+
+const formatMonth = (value) => {
+  if (!value) return '—'
+
+  const parsed = new Date(`${value}-01`)
+  if (Number.isNaN(parsed.getTime())) return value
+
+  return new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(parsed)
+}
+
+const formatInterval = (value) => {
+  if (!value) return '—'
+  return String(value).charAt(0).toUpperCase() + String(value).slice(1)
+}
+
+const priorityLabel = (value) => {
+  const priority = Number(value || 0)
+  return priority ? `P${priority}` : '—'
+}
+
+const formatStatus = (value) => {
+  if (!value) return '—'
+  return String(value).charAt(0).toUpperCase() + String(value).slice(1)
+}
 
 const updateCarSearch = (value) => {
   carSearch.value = String(value || '')

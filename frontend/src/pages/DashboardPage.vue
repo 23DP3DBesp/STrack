@@ -483,7 +483,7 @@ const setPeriodFilter = async (period) => {
 const applyHashNavigation = async (hash = route.hash) => {
   const target = String(hash || '').replace('#', '')
 
-  if (['fuel', 'repairs', 'mods'].includes(target)) {
+  if (['fuel', 'repairs', 'mods', 'ownership', 'media', 'wishlist'].includes(target)) {
     activeTab.value = target
   }
 

@@ -20,6 +20,9 @@ class Car extends Model
         'license_plate',
         'insurance_until',
         'inspection_until',
+        'purchase_price',
+        'purchase_date',
+        'current_value',
     ];
 
     protected function casts(): array
@@ -29,6 +32,9 @@ class Car extends Model
             'engine_volume' => 'decimal:1',
             'insurance_until' => 'date:Y-m-d',
             'inspection_until' => 'date:Y-m-d',
+            'purchase_price' => 'decimal:2',
+            'purchase_date' => 'date:Y-m-d',
+            'current_value' => 'decimal:2',
         ];
     }
 
@@ -55,5 +61,15 @@ class Car extends Model
     public function recurringCosts(): HasMany
     {
         return $this->hasMany(RecurringCost::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(CarDocument::class);
+    }
+
+    public function wishlistItems(): HasMany
+    {
+        return $this->hasMany(WishlistItem::class);
     }
 }

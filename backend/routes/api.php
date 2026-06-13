@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CarController;
+use App\Http\Controllers\Api\CarDocumentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FuelLogController;
 use App\Http\Controllers\Api\ModController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RepairController;
+use App\Http\Controllers\Api\WishlistItemController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RecurringCostController;
 
@@ -52,4 +54,14 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/cars/{car}/recurring-costs', [RecurringCostController::class, 'store']);
     Route::put('/recurring-costs/{recurringCost}', [RecurringCostController::class, 'update']);
     Route::delete('/recurring-costs/{recurringCost}', [RecurringCostController::class, 'destroy']);
+
+    Route::get('/cars/{car}/documents', [CarDocumentController::class, 'index']);
+    Route::post('/cars/{car}/documents', [CarDocumentController::class, 'store']);
+    Route::put('/documents/{document}', [CarDocumentController::class, 'update']);
+    Route::delete('/documents/{document}', [CarDocumentController::class, 'destroy']);
+
+    Route::get('/cars/{car}/wishlist-items', [WishlistItemController::class, 'index']);
+    Route::post('/cars/{car}/wishlist-items', [WishlistItemController::class, 'store']);
+    Route::put('/wishlist-items/{wishlistItem}', [WishlistItemController::class, 'update']);
+    Route::delete('/wishlist-items/{wishlistItem}', [WishlistItemController::class, 'destroy']);
 });

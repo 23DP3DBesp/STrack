@@ -15,7 +15,7 @@ const toNumber = (value) => Number(value || 0)
 
 const monthKeyFromDate = (value) => String(value || '').slice(0, 7)
 
-const isMissingResourceError = (error) => error?.response?.status === 404
+const isMissingResourceError = (error) => [404, 500].includes(error?.response?.status)
 
 export const parseLocalDate = (value) => {
   if (!value) return null
@@ -132,6 +132,9 @@ export const useGarageStore = defineStore('garage', {
     fuelLogs: [],
     repairs: [],
     mods: [],
+    documents: [],
+    recurringCosts: [],
+    wishlistItems: [],
 
     fuelFilters: {
       date_from: '',
@@ -352,6 +355,9 @@ export const useGarageStore = defineStore('garage', {
       this.fuelLogs = []
       this.repairs = []
       this.mods = []
+      this.documents = []
+      this.recurringCosts = []
+      this.wishlistItems = []
       this.fuelFilters = { date_from: '', date_to: '' }
       this.repairFilters = { date_from: '', date_to: '' }
     },
@@ -369,13 +375,15 @@ export const useGarageStore = defineStore('garage', {
     async recoverMissingSelectedCar(error) {
       if (!isMissingResourceError(error)) return false
 
+      const selectedWasMissing = this.cars.length > 0 && !this.selectedCar
+
       await this.fetchCars(this.search, { reloadSelected: false })
 
       if (!this.cars.length) {
         this.resetSelectedCarState()
       }
 
-      return true
+      return error?.response?.status === 404 || selectedWasMissing || !this.selectedCarId
     },
 
     async bootstrap() {
@@ -470,7 +478,10 @@ export const useGarageStore = defineStore('garage', {
         await Promise.all([
           this.fetchFuelLogs(filters.fuel ?? this.fuelFilters),
           this.fetchRepairs(filters.repairs ?? this.repairFilters),
-          this.fetchMods()
+          this.fetchMods(),
+          this.fetchDocuments(),
+          this.fetchRecurringCosts(),
+          this.fetchWishlistItems()
         ])
       } catch (error) {
         this.setError(error, 'Failed to load selected car data')
@@ -643,6 +654,48 @@ export const useGarageStore = defineStore('garage', {
         if (await this.recoverMissingSelectedCar(error)) return
 
         this.setError(error, 'Failed to load mods')
+        throw error
+      }
+    },
+
+    async fetchDocuments() {
+      if (!this.ensureSelectedCarExists()) return
+
+      try {
+        const { data } = await api.get(`/cars/${this.selectedCarId}/documents`)
+        this.documents = Array.isArray(data) ? data : []
+      } catch (error) {
+        if (await this.recoverMissingSelectedCar(error)) return
+
+        this.setError(error, 'Failed to load documents')
+        throw error
+      }
+    },
+
+    async fetchRecurringCosts() {
+      if (!this.ensureSelectedCarExists()) return
+
+      try {
+        const { data } = await api.get(`/cars/${this.selectedCarId}/recurring-costs`)
+        this.recurringCosts = Array.isArray(data) ? data : []
+      } catch (error) {
+        if (await this.recoverMissingSelectedCar(error)) return
+
+        this.setError(error, 'Failed to load recurring costs')
+        throw error
+      }
+    },
+
+    async fetchWishlistItems() {
+      if (!this.ensureSelectedCarExists()) return
+
+      try {
+        const { data } = await api.get(`/cars/${this.selectedCarId}/wishlist-items`)
+        this.wishlistItems = Array.isArray(data) ? data : []
+      } catch (error) {
+        if (await this.recoverMissingSelectedCar(error)) return
+
+        this.setError(error, 'Failed to load wishlist items')
         throw error
       }
     },

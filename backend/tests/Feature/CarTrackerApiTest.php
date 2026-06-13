@@ -163,6 +163,16 @@ class CarTrackerApiTest extends TestCase
             ->assertJsonPath('0.date', '2026-04-12');
     }
 
+    public function test_missing_car_fuel_logs_return_json_not_found(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $response = $this->getJson('/api/cars/999/fuel-logs');
+
+        $response->assertNotFound()
+            ->assertJsonPath('message', 'Resource not found.');
+    }
+
     public function test_user_can_filter_repairs_by_date_range(): void
     {
         $user = User::factory()->create();

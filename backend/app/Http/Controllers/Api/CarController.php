@@ -24,10 +24,11 @@ class CarController extends Controller
                         ->orWhere('model', 'like', "%{$search}%");
                 });
             })
-            ->withCount(['fuelLogs', 'repairs', 'mods'])
+            ->withCount(['fuelLogs', 'repairs', 'mods', 'documents', 'wishlistItems'])
             ->withSum('fuelLogs as fuel_logs_total_spent', 'total_price')
             ->withSum('repairs as repairs_total_spent', 'cost')
             ->withSum('mods as mods_total_spent', 'cost')
+            ->withSum('wishlistItems as wishlist_total_estimated', 'estimated_price')
             ->orderBy('brand')
             ->orderBy('model')
             ->get();
@@ -45,6 +46,9 @@ class CarController extends Controller
             'license_plate' => ['required', 'string', 'max:30'],
             'insurance_until' => ['nullable', 'date'],
             'inspection_until' => ['nullable', 'date'],
+            'purchase_price' => ['nullable', 'numeric', 'gte:0'],
+            'purchase_date' => ['nullable', 'date'],
+            'current_value' => ['nullable', 'numeric', 'gte:0'],
         ]);
 
         $car = $request->user()->cars()->create($validated);
@@ -57,7 +61,7 @@ class CarController extends Controller
         $this->ensureOwnedCar($request, $car);
 
         return response()->json(
-            $car->loadCount(['fuelLogs', 'repairs', 'mods'])
+            $car->loadCount(['fuelLogs', 'repairs', 'mods', 'documents', 'wishlistItems'])
         );
     }
 
@@ -73,11 +77,14 @@ class CarController extends Controller
             'license_plate' => ['sometimes', 'required', 'string', 'max:30'],
             'insurance_until' => ['nullable', 'date'],
             'inspection_until' => ['nullable', 'date'],
+            'purchase_price' => ['nullable', 'numeric', 'gte:0'],
+            'purchase_date' => ['nullable', 'date'],
+            'current_value' => ['nullable', 'numeric', 'gte:0'],
         ]);
 
         $car->update($validated);
 
-        return response()->json($car->fresh()->loadCount(['fuelLogs', 'repairs', 'mods']));
+        return response()->json($car->fresh()->loadCount(['fuelLogs', 'repairs', 'mods', 'documents', 'wishlistItems']));
     }
 
     public function destroy(Request $request, Car $car): JsonResponse
